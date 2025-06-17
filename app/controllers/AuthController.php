@@ -1,0 +1,56 @@
+<?php
+
+class AuthController
+{
+    public function login()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = $_POST['email'] ?? '';
+            $password = $_POST['password'] ?? '';
+
+            require_once __DIR__ . '/../models/Usuario.php';
+            $usuario = Usuario::findByEmail($email);
+
+            if ($usuario && password_verify($password, $usuario['password'])) {
+                $_SESSION['usuario_id'] = $usuario['id'];
+                $_SESSION['rol'] = $usuario['rol'];
+                header('Location: index.php?controller=Dashboard');
+                exit;
+            } else {
+                $_SESSION['error'] = 'Credenciales inválidas';
+                header('Location: index.php?controller=Auth&action=login');
+                exit;
+            }
+        }
+
+        require_once __DIR__ . '/../views/auth/login.php';
+    }
+
+    public function logout()
+    {
+        session_destroy();
+        header('Location: index.php?controller=Auth&action=login');
+        exit;
+    }
+
+    public function register()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $nombre = $_POST['nombre'] ?? '';
+            $apellido = $_POST['apellido'] ?? '';
+            $email = $_POST['email'] ?? '';
+            $password = $_POST['password'] ?? '';
+
+            require_once __DIR__ . '/../models/Evaluador.php';
+            require_once __DIR__ . '/../models/Usuario.php';
+
+            $evaluadorId = Evaluador::crear($nombre, $apellido, $email, $password);
+            Usuario::crear('evaluador', $evaluadorId, $email, $password);
+
+            header('Location: index.php?controller=Auth&action=login');
+            exit;
+        }
+
+        require_once __DIR__ . '/../views/auth/register.php';
+    }
+}

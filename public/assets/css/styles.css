@@ -1,0 +1,106 @@
+/* Paleta de colores institucional */
+:root {
+  --color-azul: #004080;
+  --color-blanco: #ffffff;
+  --color-rojo: #e53935;
+  --color-gris-claro: #f1f1f1;
+  --borde-radius: 12px;
+  --sombra-suave: 0 2px 6px rgba(0, 0, 0, 0.1);
+  --fuente-principal: 'Poppins', 'Roboto', sans-serif;
+}
+
+/* Estilos base */
+body {
+  font-family: var(--fuente-principal);
+  background-color: var(--color-gris-claro);
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: var(--color-azul);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  font-family: inherit;
+  background-color: var(--color-rojo);
+  color: var(--color-blanco);
+  border: none;
+  padding: 10px 16px;
+  border-radius: var(--borde-radius);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #c62828;
+}
+
+/* Navbar */
+.navbar {
+  background-color: var(--color-azul);
+  color: var(--color-blanco);
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar a {
+  color: var(--color-blanco);
+  margin-left: 16px;
+}
+
+/* Cards del dashboard */
+.card {
+  background-color: var(--color-blanco);
+  border-radius: var(--borde-radius);
+  box-shadow: var(--sombra-suave);
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: scale(1.03);
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+/* Formularios */
+form {
+  background-color: var(--color-blanco);
+  padding: 20px;
+  border-radius: var(--borde-radius);
+  box-shadow: var(--sombra-suave);
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+  border-radius: var(--borde-radius);
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 12px;
+  background-color: var(--color-azul);
+  color: var(--color-blanco);
+  font-size: 0.9rem;
+}
