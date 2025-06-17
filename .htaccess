@@ -8,5 +8,7 @@
   RewriteRule ^ index.php [QSA,L]
 </IfModule>
 
-# Opcional: Denegar acceso a carpetas sensibles
-deny from all
+# Opcional: Denegar acceso directo a archivos .env, .git, .htaccess, etc.
+<FilesMatch "^(\.env|\.git|\.htaccess)$">
+  Require all denied
+</FilesMatch>
