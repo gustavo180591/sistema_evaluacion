@@ -4,8 +4,8 @@ class DashboardController
 {
     public function index()
     {
-        session_start();
-
+        // session_start() ya se ejecuta en index.php, no duplicar
+        
         if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['rol'])) {
             header('Location: index.php?controller=Auth&action=login');
             exit;

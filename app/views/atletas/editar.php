@@ -4,8 +4,8 @@
 <div class="container">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
-      <h2>👤 Nuevo Atleta</h2>
-      <p class="text-muted">Registra un nuevo atleta en tu establecimiento</p>
+      <h2>✏️ Editar Atleta</h2>
+      <p class="text-muted">Modifica los datos del atleta <?php echo htmlspecialchars($atleta['nombre'] . ' ' . $atleta['apellido']); ?></p>
     </div>
     <div>
       <a href="index.php?controller=Atleta&action=listado" class="btn btn-secondary">
@@ -16,18 +16,18 @@
 
   <?php if (isset($_GET['error'])): ?>
     <div class="alert alert-danger">
-      <strong>⚠️ Error:</strong> Ha ocurrido un error al registrar el atleta. Verifica los datos e intenta nuevamente.
+      <strong>⚠️ Error:</strong> Ha ocurrido un error al actualizar el atleta. Verifica los datos e intenta nuevamente.
     </div>
   <?php endif; ?>
 
   <?php if (isset($_GET['success'])): ?>
     <div class="alert alert-success">
-      <strong>✅ Éxito:</strong> El atleta ha sido registrado correctamente.
+      <strong>✅ Éxito:</strong> El atleta ha sido actualizado correctamente.
     </div>
   <?php endif; ?>
 
   <div class="form-container">
-    <form method="POST" action="index.php?controller=Atleta&action=crear" class="needs-validation" novalidate id="atletaForm">
+    <form method="POST" action="index.php?controller=Atleta&action=editar&id=<?php echo $atleta['id']; ?>" class="needs-validation" novalidate id="atletaForm">
       
       <!-- Información Personal -->
       <div class="card mb-4">
@@ -42,7 +42,8 @@
                   <strong>Nombre *</strong>
                 </label>
                 <input type="text" name="nombre" id="nombre" class="form-control" 
-                       required maxlength="100" placeholder="Ingresa el nombre">
+                       required maxlength="100" placeholder="Ingresa el nombre"
+                       value="<?php echo htmlspecialchars($atleta['nombre']); ?>">
                 <div class="invalid-feedback">
                   El nombre es obligatorio
                 </div>
@@ -55,7 +56,8 @@
                   <strong>Apellido *</strong>
                 </label>
                 <input type="text" name="apellido" id="apellido" class="form-control" 
-                       required maxlength="100" placeholder="Ingresa el apellido">
+                       required maxlength="100" placeholder="Ingresa el apellido"
+                       value="<?php echo htmlspecialchars($atleta['apellido']); ?>">
                 <div class="invalid-feedback">
                   El apellido es obligatorio
                 </div>
@@ -70,7 +72,8 @@
                   <strong>DNI/RUT *</strong>
                 </label>
                 <input type="text" name="dni" id="dni" class="form-control" 
-                       required maxlength="20" placeholder="Ej: 12.345.678-9">
+                       required maxlength="20" placeholder="Ej: 12.345.678-9"
+                       value="<?php echo htmlspecialchars($atleta['dni']); ?>">
                 <div class="invalid-feedback">
                   El DNI/RUT es obligatorio
                 </div>
@@ -84,9 +87,9 @@
                 </label>
                 <select name="sexo" id="sexo" class="form-control" required>
                   <option value="">Seleccionar...</option>
-                  <option value="M">👨 Masculino</option>
-                  <option value="F">👩 Femenino</option>
-                  <option value="Otro">⚧️ Otro</option>
+                  <option value="M" <?php echo $atleta['sexo'] === 'M' ? 'selected' : ''; ?>>👨 Masculino</option>
+                  <option value="F" <?php echo $atleta['sexo'] === 'F' ? 'selected' : ''; ?>>👩 Femenino</option>
+                  <option value="Otro" <?php echo $atleta['sexo'] === 'Otro' ? 'selected' : ''; ?>>⚧️ Otro</option>
                 </select>
                 <div class="invalid-feedback">
                   Selecciona el sexo
@@ -100,7 +103,8 @@
                   <strong>Fecha de Nacimiento *</strong>
                 </label>
                 <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" 
-                       class="form-control" required max="<?php echo date('Y-m-d'); ?>">
+                       class="form-control" required max="<?php echo date('Y-m-d'); ?>"
+                       value="<?php echo $atleta['fecha_nacimiento']; ?>">
                 <div class="invalid-feedback">
                   La fecha de nacimiento es obligatoria
                 </div>
@@ -125,7 +129,8 @@
                 </label>
                 <div class="input-group">
                   <input type="number" name="altura_cm" id="altura_cm" class="form-control" 
-                         required step="0.1" min="50" max="250" placeholder="Ej: 175.5">
+                         required step="0.1" min="50" max="250" placeholder="Ej: 175.5"
+                         value="<?php echo $atleta['altura_cm']; ?>">
                   <div class="input-group-append">
                     <span class="input-group-text">cm</span>
                   </div>
@@ -143,7 +148,8 @@
                 </label>
                 <div class="input-group">
                   <input type="number" name="peso_kg" id="peso_kg" class="form-control" 
-                         required step="0.1" min="20" max="200" placeholder="Ej: 70.2">
+                         required step="0.1" min="20" max="200" placeholder="Ej: 70.2"
+                         value="<?php echo $atleta['peso_kg']; ?>">
                   <div class="input-group-append">
                     <span class="input-group-text">kg</span>
                   </div>
@@ -161,7 +167,8 @@
                 </label>
                 <div class="input-group">
                   <input type="number" name="envergadura_cm" id="envergadura_cm" class="form-control" 
-                         required step="0.1" min="50" max="250" placeholder="Ej: 180.0">
+                         required step="0.1" min="50" max="250" placeholder="Ej: 180.0"
+                         value="<?php echo $atleta['envergadura_cm']; ?>">
                   <div class="input-group-append">
                     <span class="input-group-text">cm</span>
                   </div>
@@ -180,7 +187,8 @@
                 </label>
                 <div class="input-group">
                   <input type="number" name="altura_sentado_cm" id="altura_sentado_cm" class="form-control" 
-                         required step="0.1" min="30" max="150" placeholder="Ej: 92.5">
+                         required step="0.1" min="30" max="150" placeholder="Ej: 92.5"
+                         value="<?php echo $atleta['altura_sentado_cm']; ?>">
                   <div class="input-group-append">
                     <span class="input-group-text">cm</span>
                   </div>
@@ -232,9 +240,9 @@
                 </label>
                 <select name="lateralidad_visual" id="lateralidad_visual" class="form-control" required>
                   <option value="">Seleccionar...</option>
-                  <option value="Izquierdo">👁️ Ojo Izquierdo Dominante</option>
-                  <option value="Derecho">👁️ Ojo Derecho Dominante</option>
-                  <option value="Ambidiestro">👀 Sin Dominancia Clara</option>
+                  <option value="Izquierdo" <?php echo $atleta['lateralidad_visual'] === 'Izquierdo' ? 'selected' : ''; ?>>👁️ Ojo Izquierdo Dominante</option>
+                  <option value="Derecho" <?php echo $atleta['lateralidad_visual'] === 'Derecho' ? 'selected' : ''; ?>>👁️ Ojo Derecho Dominante</option>
+                  <option value="Ambidiestro" <?php echo $atleta['lateralidad_visual'] === 'Ambidiestro' ? 'selected' : ''; ?>>👀 Sin Dominancia Clara</option>
                 </select>
                 <div class="invalid-feedback">
                   Selecciona la lateralidad visual
@@ -250,9 +258,9 @@
                 </label>
                 <select name="lateralidad_podal" id="lateralidad_podal" class="form-control" required>
                   <option value="">Seleccionar...</option>
-                  <option value="Izquierdo">🦶 Pie Izquierdo Dominante</option>
-                  <option value="Derecho">🦶 Pie Derecho Dominante</option>
-                  <option value="Ambidiestro">👣 Sin Dominancia Clara</option>
+                  <option value="Izquierdo" <?php echo $atleta['lateralidad_podal'] === 'Izquierdo' ? 'selected' : ''; ?>>🦶 Pie Izquierdo Dominante</option>
+                  <option value="Derecho" <?php echo $atleta['lateralidad_podal'] === 'Derecho' ? 'selected' : ''; ?>>🦶 Pie Derecho Dominante</option>
+                  <option value="Ambidiestro" <?php echo $atleta['lateralidad_podal'] === 'Ambidiestro' ? 'selected' : ''; ?>>👣 Sin Dominancia Clara</option>
                 </select>
                 <div class="invalid-feedback">
                   Selecciona la lateralidad podal
@@ -269,8 +277,8 @@
         <a href="index.php?controller=Atleta&action=listado" class="btn btn-secondary">
           ❌ Cancelar
         </a>
-        <button type="submit" class="btn btn-success" id="btnGuardar">
-          ✅ Guardar Atleta
+        <button type="submit" class="btn btn-warning" id="btnGuardar">
+          ✅ Actualizar Atleta
         </button>
       </div>
     </form>
@@ -296,8 +304,8 @@
 })();
 
 // Cálculo automático de edad
-document.getElementById('fecha_nacimiento').addEventListener('change', function() {
-  const fechaNacimiento = new Date(this.value);
+function calcularEdad() {
+  const fechaNacimiento = new Date(document.getElementById('fecha_nacimiento').value);
   const hoy = new Date();
   let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
   const mes = hoy.getMonth() - fechaNacimiento.getMonth();
@@ -307,7 +315,9 @@ document.getElementById('fecha_nacimiento').addEventListener('change', function(
   }
   
   document.getElementById('edad-calculada').textContent = edad + ' años';
-});
+}
+
+document.getElementById('fecha_nacimiento').addEventListener('change', calcularEdad);
 
 // Cálculos antropométricos automáticos
 function calcularMedidas() {
@@ -374,10 +384,16 @@ document.getElementById('atletaForm').addEventListener('submit', function(e) {
   const nombre = document.getElementById('nombre').value;
   const apellido = document.getElementById('apellido').value;
   
-  if (!confirm('¿Estás seguro de que deseas registrar a ' + nombre + ' ' + apellido + '?')) {
+  if (!confirm('¿Estás seguro de que deseas actualizar los datos de ' + nombre + ' ' + apellido + '?')) {
     e.preventDefault();
   }
 });
+
+// Calcular valores iniciales al cargar la página
+window.addEventListener('load', function() {
+  calcularEdad();
+  calcularMedidas();
+});
 </script>
 
-<?php require_once __DIR__ . '/../layout/footer.php'; ?>
+<?php require_once __DIR__ . '/../layout/footer.php'; ?> 

@@ -4,8 +4,14 @@ class Router
 {
     public function handleRequest()
     {
+        // Si no hay parámetros en la URL, verificar sesión
+        if (empty($_GET['controller']) && empty($_GET['action'])) {
+            $this->handleDefaultRoute();
+            return;
+        }
+
         $controllerName = $_GET['controller'] ?? 'Auth';
-        $action = $_GET['action'] ?? 'login';
+        $action = $_GET['action'] ?? $this->getDefaultAction($controllerName);
 
         $controllerClass = $controllerName . 'Controller';
         $controllerFile = __DIR__ . '/../controllers/' . $controllerClass . '.php';
@@ -24,6 +30,42 @@ class Router
             }
         } else {
             echo "Archivo de controlador '$controllerFile' no encontrado.";
+        }
+    }
+
+    private function getDefaultAction($controllerName)
+    {
+        // Definir acciones por defecto según el controlador
+        switch ($controllerName) {
+            case 'Dashboard':
+                return 'index';
+            case 'Auth':
+                return 'login';
+            case 'Atleta':
+                return 'listado';
+            case 'Test':
+                return 'asignar';
+            case 'Admin':
+                return 'usuarios';
+            case 'Evaluador':
+                return 'listado';
+            default:
+                return 'index';
+        }
+    }
+
+    private function handleDefaultRoute()
+    {
+        // Verificar si hay sesión activa
+        if (isset($_SESSION['usuario_id']) && isset($_SESSION['rol'])) {
+            // Usuario ya logueado, redirigir al dashboard con acción explícita
+            header('Location: index.php?controller=Dashboard&action=index');
+            exit;
+        } else {
+            // No hay sesión, mostrar login
+            require_once __DIR__ . '/../controllers/AuthController.php';
+            $authController = new AuthController();
+            $authController->login();
         }
     }
 }

@@ -1,3 +1,4 @@
+<?php require_once __DIR__ . '/../layout/header.php'; ?>
 <?php require_once __DIR__ . '/../componentes/navbar.php'; ?>
 
 <div class="container" style="padding: 30px;">
@@ -22,4 +23,4 @@
   </div>
 </div>
 
-<?php require_once __DIR__ . '/../componentes/footer.php'; ?>
+<?php require_once __DIR__ . '/../layout/footer.php'; ?>

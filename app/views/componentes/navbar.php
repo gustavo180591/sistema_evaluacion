@@ -1,12 +1,11 @@
 <?php
-session_start();
 $usuario_rol = $_SESSION['rol'] ?? null;
 $usuario_id = $_SESSION['usuario_id'] ?? null;
 ?>
 
 <nav class="navbar">
   <div class="logo">
-    <a href="index.php?controller=Dashboard" style="color: white; font-weight: bold;">🏛 Sistema de Captación</a>
+    <a href="index.php?controller=Dashboard&action=index" style="color: white; font-weight: bold;">🏛 Sistema de Captación</a>
   </div>
   <div class="nav-items">
     <?php if ($usuario_id): ?>

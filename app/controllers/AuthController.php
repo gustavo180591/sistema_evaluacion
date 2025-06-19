@@ -4,6 +4,12 @@ class AuthController
 {
     public function login()
     {
+        // Si ya hay sesión activa, redirigir al dashboard
+        if (isset($_SESSION['usuario_id']) && isset($_SESSION['rol'])) {
+            header('Location: index.php?controller=Dashboard&action=index');
+            exit;
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = $_POST['email'] ?? '';
             $password = $_POST['password'] ?? '';
@@ -14,7 +20,7 @@ class AuthController
             if ($usuario && password_verify($password, $usuario['password'])) {
                 $_SESSION['usuario_id'] = $usuario['id'];
                 $_SESSION['rol'] = $usuario['rol'];
-                header('Location: index.php?controller=Dashboard');
+                header('Location: index.php?controller=Dashboard&action=index');
                 exit;
             } else {
                 $_SESSION['error'] = 'Credenciales inválidas';
