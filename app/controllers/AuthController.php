@@ -46,6 +46,14 @@ class AuthController
             $apellido = $_POST['apellido'] ?? '';
             $email = $_POST['email'] ?? '';
             $password = $_POST['password'] ?? '';
+            $password_confirm = $_POST['password_confirm'] ?? '';
+
+            // Validar que las contraseñas coincidan
+            if ($password !== $password_confirm) {
+                $_SESSION['error'] = 'Las contraseñas no coinciden';
+                header('Location: index.php?controller=Auth&action=register');
+                exit;
+            }
 
             require_once __DIR__ . '/../models/Evaluador.php';
             require_once __DIR__ . '/../models/Usuario.php';
@@ -53,6 +61,7 @@ class AuthController
             $evaluadorId = Evaluador::crear($nombre, $apellido, $email, $password);
             Usuario::crear('evaluador', $evaluadorId, $email, $password);
 
+            $_SESSION['success'] = 'Registro exitoso. Por favor, inicia sesión.';
             header('Location: index.php?controller=Auth&action=login');
             exit;
         }
