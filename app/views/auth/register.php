@@ -23,14 +23,25 @@
         </div>
 
         <div class="mb-3">
-          <label for="password" class="form-label">Contraseña</label>
-          <input type="password" class="form-control" name="password" required>
-        </div>
+  <label for="password" class="form-label">Contraseña</label>
+  <div class="input-group">
+    <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña" required>
+    <span class="input-group-text">
+      <input type="checkbox" id="togglePassword" title="Mostrar contraseña">
+    </span>
+  </div>
+</div>
 
-        <div class="mb-3">
-          <label for="password_confirm" class="form-label">Confirmar contraseña</label>
-          <input type="password" class="form-control" name="password_confirm" required>
-        </div>
+<div class="mb-3">
+  <label for="password_confirm" class="form-label">Confirmar contraseña</label>
+  <div class="input-group">
+    <input type="password" class="form-control" id="password_confirm" name="password_confirm" placeholder="Confirmar contraseña" required>
+    <span class="input-group-text">
+      <input type="checkbox" id="togglePasswordConfirm" title="Mostrar contraseña">
+    </span>
+  </div>
+</div>
+
 
         <div class="d-grid">
           <button type="submit" class="btn btn-primary">Registrarse</button>
@@ -47,5 +58,15 @@
     </div>
   </div>
 </div>
+<script>
+  document.getElementById('togglePassword').addEventListener('change', function () {
+    const password = document.getElementById('password');
+    password.type = this.checked ? 'text' : 'password';
+  });
 
+  document.getElementById('togglePasswordConfirm').addEventListener('change', function () {
+    const confirm = document.getElementById('password_confirm');
+    confirm.type = this.checked ? 'text' : 'password';
+  });
+</script>
 <?php require_once __DIR__ . '/../layout/footer.php'; ?>

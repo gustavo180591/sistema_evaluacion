@@ -24,10 +24,25 @@
           <input type="email" class="form-control" name="email" required>
         </div>
 
-        <div class="mb-3">
+       <!--  <div class="mb-3">
           <label for="password" class="form-label">Contraseña</label>
           <input type="password" class="form-control" name="password" required>
-        </div>
+        </div> -->
+        <div class="mb-3">
+  <label for="password" class="form-label">Contraseña</label>
+  <div class="input-group">
+    <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña" required>
+    <span class="input-group-text">
+      <input type="checkbox" id="togglePassword" title="Mostrar contraseña">
+    </span>
+  </div>
+  <small class="form-text text-muted">Mostrar contraseña</small>
+</div>
+
+        <!-- <div>
+    <input type="password" id="password" name="password" placeholder="Contraseña">
+    <input type="checkbox" id="togglePassword"> Mostrar contraseña
+  </div> -->
 
         <div class="d-grid">
           <button type="submit" class="btn btn-primary">Ingresar</button>
@@ -44,5 +59,14 @@
     </div>
   </div>
 </div>
+<script>
+  const togglePassword = document.querySelector('#togglePassword');
+  const password = document.querySelector('#password');
 
+  togglePassword.addEventListener('change', function (e) {
+    // Alternar el tipo de input entre 'password' y 'text'
+    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+    password.setAttribute('type', type);
+  });
+</script>
 <?php require_once __DIR__ . '/../layout/footer.php'; ?>
