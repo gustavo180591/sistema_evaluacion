@@ -10,12 +10,12 @@ class Usuario
         return $stmt->fetch();
     }
 
-    public static function crear($rol, $referencia_id, $email, $password)
+    public static function crear($nombre, $apellido, $email, $password, $rol = 'usuario')
     {
         global $pdo;
         $hash = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $pdo->prepare("INSERT INTO usuarios (rol, referencia_id, email, password) VALUES (?, ?, ?, ?)");
-        return $stmt->execute([$rol, $referencia_id, $email, $hash]);
+        $stmt = $pdo->prepare("INSERT INTO usuarios (nombre, apellido, email, password, rol) VALUES (?, ?, ?, ?, ?)");
+        return $stmt->execute([$nombre, $apellido, $email, $hash, $rol]);
     }
 
     public static function todos()

@@ -1,0 +1,60 @@
+<?php
+require_once __DIR__ . '/../componentes/navbar.php';
+?>
+
+<div class="container mt-4">
+    <h2>Administración de Usuarios</h2>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Fecha Registro</th>
+                            <th>Fecha Actualización</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php 
+                        if (empty($usuarios)) {
+                            echo '<tr><td colspan="5" class="text-center">No hay usuarios registrados</td></tr>';
+                        } else {
+                            foreach ($usuarios as $usuario): 
+                                if (!isset($usuario['id'], $usuario['nombre'], $usuario['email'], $usuario['rol'])) {
+                                    continue;
+                                }
+                        ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($usuario['id']); ?></td>
+                            <td><?php echo htmlspecialchars($usuario['nombre']); ?></td>
+                            <td><?php echo htmlspecialchars($usuario['apellido']); ?></td>
+                            <td><?php echo htmlspecialchars($usuario['email']); ?></td>
+                            <td><?php echo htmlspecialchars($usuario['rol']); ?></td>
+                            <td><?php echo htmlspecialchars($usuario['estado']); ?></td>
+                            <td><?php echo htmlspecialchars(date('d/m/Y H:i', strtotime($usuario['fecha_registro']))); ?></td>
+                            <td><?php echo htmlspecialchars(date('d/m/Y H:i', strtotime($usuario['fecha_actualizacion']))); ?></td>
+                            <td>
+                                <a href="index.php?controller=Admin&action=editarUsuario&id=<?php echo $usuario['id']; ?>" class="btn btn-primary btn-sm">Editar</a>
+                                <a href="index.php?controller=Admin&action=eliminarUsuario&id=<?php echo $usuario['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Está seguro de eliminar este usuario?');">Eliminar</a>
+                            </td>
+                        </tr>
+                        <?php 
+                            endforeach;
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php require_once __DIR__ . '/../componentes/footer.php'; ?>

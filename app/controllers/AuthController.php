@@ -58,8 +58,7 @@ class AuthController
             require_once __DIR__ . '/../models/Evaluador.php';
             require_once __DIR__ . '/../models/Usuario.php';
 
-            $evaluadorId = Evaluador::crear($nombre, $apellido, $email, $password);
-            Usuario::crear('evaluador', $evaluadorId, $email, $password);
+            Usuario::crear($nombre, $apellido, $email, $password, 'evaluador');
 
             $_SESSION['success'] = 'Registro exitoso. Por favor, inicia sesión.';
             header('Location: index.php?controller=Auth&action=login');

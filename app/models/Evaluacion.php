@@ -26,12 +26,11 @@ class Evaluacion
     public static function porEvaluador($evaluador_id)
     {
         global $pdo;
-        $stmt = $pdo->prepare("SELECT e.*, a.nombre, a.apellido, l.nombre AS lugar_nombre,
+        $stmt = $pdo->prepare("SELECT e.*, a.nombre, a.apellido, a.lugar_id,
             COUNT(rt.id) as total_tests,
             GROUP_CONCAT(t.nombre_test SEPARATOR ', ') as tests_realizados
             FROM evaluaciones e
             JOIN atletas a ON e.atleta_id = a.id
-            LEFT JOIN lugares l ON e.lugar_id = l.id
             LEFT JOIN resultados_tests rt ON e.id = rt.evaluacion_id
             LEFT JOIN tests t ON rt.test_id = t.id
             WHERE e.evaluador_id = ?

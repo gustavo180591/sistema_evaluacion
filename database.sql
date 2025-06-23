@@ -1,5 +1,49 @@
+-- Crear la base de datos y configurar usuario
 CREATE DATABASE IF NOT EXISTS sistema_evaluacion CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE sistema_evaluacion;
+
+-- Crear tabla usuarios
+CREATE TABLE IF NOT EXISTS usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    rol ENUM('administrador', 'evaluador', 'usuario') NOT NULL DEFAULT 'usuario',
+    estado ENUM('activo', 'inactivo') NOT NULL DEFAULT 'activo',
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT chk_email_format CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$')
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Insertar usuario administrador por defecto
+INSERT INTO usuarios (nombre, apellido, email, password, rol, estado) 
+VALUES (
+    'Administrador', 
+    'Principal',
+    'admin@example.com',
+    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', -- password: password
+    'administrador',
+    'activo'
+);
+
+-- Crear tabla evaluaciones
+CREATE TABLE IF NOT EXISTS evaluaciones (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    atleta_id INT NOT NULL,
+    evaluador_id INT NOT NULL,
+    fecha_evaluacion DATE NOT NULL,
+    hora_inicio TIME,
+    hora_fin TIME,
+    estado ENUM('iniciada', 'en_progreso', 'completada', 'cancelada') DEFAULT 'iniciada',
+    observaciones TEXT,
+    clima VARCHAR(100),
+    temperatura_ambiente DECIMAL(4,1),
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (atleta_id) REFERENCES atletas(id) ON DELETE CASCADE,
+    FOREIGN KEY (evaluador_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabla de Evaluadores
 CREATE TABLE evaluadores (
@@ -11,21 +55,11 @@ CREATE TABLE evaluadores (
     fecha_alta DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabla de Usuarios (admin o evaluador)
-CREATE TABLE usuarios (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    rol ENUM('administrador', 'evaluador') NOT NULL,
-    referencia_id INT,
-    email VARCHAR(150) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    activo BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (referencia_id) REFERENCES evaluadores(id) ON DELETE SET NULL
-);
-
 -- Tabla de Atletas
 CREATE TABLE atletas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     evaluador_id INT,
+    lugar_id INT,
     nombre VARCHAR(100),
     apellido VARCHAR(100),
     dni VARCHAR(20),
