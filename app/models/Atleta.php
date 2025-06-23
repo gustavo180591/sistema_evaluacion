@@ -52,13 +52,14 @@ class Atleta
         $lugar_evaluador = self::obtenerLugarEvaluador($evaluador_id);
         
         $stmt = $pdo->prepare("INSERT INTO atletas (
-            evaluador_id, nombre, apellido, dni, sexo, fecha_nacimiento,
+            evaluador_id, lugar_id, nombre, apellido, dni, sexo, fecha_nacimiento,
             altura_cm, peso_kg, envergadura_cm, altura_sentado_cm,
-            lateralidad_visual, lateralidad_podal, lugar_id, fecha_registro
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+            lateralidad_visual, lateralidad_podal, discapacidad_id, fecha_registro
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
 
         return $stmt->execute([
             $evaluador_id,
+            $lugar_evaluador,
             $data['nombre'],
             $data['apellido'],
             $data['dni'],
@@ -70,7 +71,7 @@ class Atleta
             $data['altura_sentado_cm'],
             $data['lateralidad_visual'],
             $data['lateralidad_podal'],
-            $lugar_evaluador
+            $data['discapacidad_id']
         ]);
     }
 
@@ -79,12 +80,15 @@ class Atleta
         global $pdo;
         
         $stmt = $pdo->prepare("UPDATE atletas SET 
-            nombre = ?, apellido = ?, dni = ?, sexo = ?, fecha_nacimiento = ?,
-            altura_cm = ?, peso_kg = ?, envergadura_cm = ?, altura_sentado_cm = ?,
-            lateralidad_visual = ?, lateralidad_podal = ?
+            evaluador_id = ?, lugar_id = ?, nombre = ?, apellido = ?, dni = ?, sexo = ?, 
+            fecha_nacimiento = ?, altura_cm = ?, peso_kg = ?, envergadura_cm = ?, 
+            altura_sentado_cm = ?, lateralidad_visual = ?, lateralidad_podal = ?,
+            discapacidad_id = ?
             WHERE id = ?");
 
         return $stmt->execute([
+            $data['evaluador_id'],
+            $data['lugar_id'],
             $data['nombre'],
             $data['apellido'],
             $data['dni'],
@@ -96,6 +100,7 @@ class Atleta
             $data['altura_sentado_cm'],
             $data['lateralidad_visual'],
             $data['lateralidad_podal'],
+            $data['discapacidad_id'],
             $id
         ]);
     }
@@ -103,9 +108,10 @@ class Atleta
     public static function buscarPorId($id)
     {
         global $pdo;
-        $stmt = $pdo->prepare("SELECT a.*, l.nombre as lugar_nombre 
+        $stmt = $pdo->prepare("SELECT a.*, l.nombre as lugar_nombre, d.nombre as discapacidad_nombre, d.tipo as discapacidad_tipo 
             FROM atletas a 
             LEFT JOIN lugares l ON a.lugar_id = l.id 
+            LEFT JOIN discapacidades d ON a.discapacidad_id = d.id 
             WHERE a.id = ? LIMIT 1");
         $stmt->execute([$id]);
         return $stmt->fetch();

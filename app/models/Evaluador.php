@@ -12,6 +12,21 @@ class Evaluador
     public static function crear($nombre, $apellido, $email, $password)
     {
         global $pdo;
+        
+        // Verificar si el email ya existe
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM evaluadores WHERE email = ?");
+        $stmt->execute([$email]);
+        if ($stmt->fetchColumn() > 0) {
+            throw new Exception("El email ya está registrado");
+        }
+        
+        // Verificar si el email ya existe en usuarios
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM usuarios WHERE email = ?");
+        $stmt->execute([$email]);
+        if ($stmt->fetchColumn() > 0) {
+            throw new Exception("El email ya está registrado en el sistema");
+        }
+        
         $stmt = $pdo->prepare("INSERT INTO evaluadores (nombre, apellido, email, password, fecha_alta) VALUES (?, ?, ?, ?, NOW())");
         $hash = password_hash($password, PASSWORD_DEFAULT);
         $stmt->execute([$nombre, $apellido, $email, $hash]);

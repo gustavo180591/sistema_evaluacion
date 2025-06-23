@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS evaluaciones (
     fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (atleta_id) REFERENCES atletas(id) ON DELETE CASCADE,
-    FOREIGN KEY (evaluador_id) REFERENCES usuarios(id) ON DELETE CASCADE
+    FOREIGN KEY (evaluador_id) REFERENCES evaluadores(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabla de Evaluadores
@@ -71,9 +71,33 @@ CREATE TABLE atletas (
     altura_sentado_cm DECIMAL(5,2),
     lateralidad_visual ENUM('Izquierdo', 'Derecho', 'Ambidiestro'),
     lateralidad_podal ENUM('Izquierdo', 'Derecho', 'Ambidiestro'),
+    discapacidad_id INT,
     fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (evaluador_id) REFERENCES evaluadores(id) ON DELETE SET NULL
+    FOREIGN KEY (evaluador_id) REFERENCES evaluadores(id) ON DELETE SET NULL,
+    FOREIGN KEY (discapacidad_id) REFERENCES discapacidades(id) ON DELETE SET NULL
 );
+
+-- Tabla de Discapacidades
+CREATE TABLE discapacidades (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100),
+    descripcion TEXT,
+    tipo ENUM('fisica', 'visual', 'auditiva', 'intelectual', 'psicosocial') NOT NULL,
+    fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insertar discapacidades iniciales
+INSERT INTO discapacidades (nombre, descripcion, tipo) VALUES
+('Amputación', 'Amputación parcial o total de miembros', 'fisica'),
+('Paraplejia', 'Parálisis de las piernas', 'fisica'),
+('Ceguera', 'Perdida total de la visión', 'visual'),
+('Baja visión', 'Limitación significativa de la visión', 'visual'),
+('Sordera', 'Perdida total de la audición', 'auditiva'),
+('Baja audición', 'Limitación significativa de la audición', 'auditiva'),
+('Parálisis cerebral', 'Trastorno del movimiento y postura', 'fisica'),
+('Autismo', 'Trastorno del espectro autista', 'intelectual'),
+('Síndrome de Down', 'Trastorno genético', 'intelectual'),
+('Trastorno del espectro autista', 'Trastorno del neurodesarrollo', 'intelectual');
 
 -- Tabla de Lugares
 CREATE TABLE lugares (
