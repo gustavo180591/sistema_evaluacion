@@ -108,6 +108,32 @@
               </div>
             </div>
           </div>
+
+          <!-- Discapacidad -->
+          <div class="row mt-4">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="discapacidad_id" class="form-label">
+                  <strong>Discapacidad <?php if (isset($_GET['adaptado'])): ?>*<?php endif; ?></strong>
+                </label>
+                <select name="discapacidad_id" id="discapacidad_id" class="form-control" <?php if (isset($_GET['adaptado'])): ?>required<?php endif; ?>>
+                  <option value=""><?php if (isset($_GET['adaptado'])): ?>Selecciona una discapacidad<?php else: ?>No tiene discapacidad<?php endif; ?></option>
+                  <?php foreach ($discapacidades as $discapacidad): ?>
+                    <option value="<?php echo $discapacidad['id']; ?>">
+                      <?php echo htmlspecialchars($discapacidad['nombre']); ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+                <small class="form-text text-muted">
+                  <?php if (isset($_GET['adaptado'])): ?>
+                    Selecciona una discapacidad para el atleta adaptado
+                  <?php else: ?>
+                    Selecciona si el atleta tiene alguna discapacidad
+                  <?php endif; ?>
+                </small>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
