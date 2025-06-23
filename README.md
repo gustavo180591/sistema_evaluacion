@@ -12,6 +12,8 @@ Un sistema completo para la gestión de evaluaciones físicas y deportivas, dise
 - 🔐 Sistema de seguridad robusto con roles y permisos
 - 📱 Interfaz web moderna y responsive
 - 🐳 Soporte nativo para Docker
+- 🚽 Gestión de discapacidades para atletas adaptados
+- 📇 Asignación de discapacidades en perfiles de atletas
 
 ## 📥 Exportación de datos
 
@@ -114,7 +116,8 @@ http://localhost
 │   │   ├── AtletaController.php  # Gestión de atletas
 │   │   ├── EvaluadorController.php # Gestión de evaluadores
 │   │   ├── AdminController.php   # Panel de administración
-│   │   └── TestController.php    # Gestión de tests
+│   │   ├── TestController.php    # Gestión de tests
+│   │   └── DiscapacidadController.php # Gestión de discapacidades
 │   
 │   ├── models/                   # Modelos de datos
 │   │   ├── Usuario.php           # Usuarios y roles
@@ -122,7 +125,8 @@ http://localhost
 │   │   ├── Evaluador.php         # Información de evaluadores
 │   │   ├── Lugar.php             # Ubicaciones
 │   │   ├── Test.php              # Tipos de pruebas
-│   │   └── ResultadoTest.php     # Resultados de evaluaciones
+│   │   ├── ResultadoTest.php     # Resultados de evaluaciones
+│   │   └── Discapacidad.php      # Gestión de discapacidades
 │
 │   ├── views/                    # Vistas
 │   │   ├── auth/                 # Autenticación
