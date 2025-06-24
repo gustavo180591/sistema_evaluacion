@@ -2,30 +2,31 @@
 
 class Atleta
 {
-    public static function todosPorEvaluador($evaluador_id)
+    public static function todosPorEvaluador($usuario_id)
     {
         global $pdo;
-        // Obtener el lugar del evaluador primero
-        $lugar_evaluador = self::obtenerLugarEvaluador($evaluador_id);
         
-        if (!$lugar_evaluador) {
-            // Si el evaluador no tiene lugar asignado, mostrar todos los atletas del evaluador
-            $stmt = $pdo->prepare("SELECT a.*, l.nombre as lugar_nombre 
-                FROM atletas a 
-                LEFT JOIN lugares l ON a.lugar_id = l.id 
-                WHERE a.evaluador_id = ? 
-                ORDER BY a.apellido, a.nombre");
-            $stmt->execute([$evaluador_id]);
-            return $stmt->fetchAll();
+        // Primero necesitamos obtener el evaluador_id desde el usuario_id
+        // ya que la sesión puede tener usuario_id pero necesitamos evaluador_id
+        $stmt = $pdo->prepare("SELECT e.id as evaluador_id FROM evaluadores e 
+                               JOIN usuarios u ON e.email = u.email 
+                               WHERE u.id = ? LIMIT 1");
+        $stmt->execute([$usuario_id]);
+        $evaluador = $stmt->fetch();
+        
+        if (!$evaluador) {
+            return []; // Si no encuentra el evaluador, retorna array vacío
         }
         
-        // Solo mostrar atletas del mismo lugar que el evaluador
+        $evaluador_id = $evaluador['evaluador_id'];
+        
+        // Obtener todos los atletas de este evaluador
         $stmt = $pdo->prepare("SELECT a.*, l.nombre as lugar_nombre 
             FROM atletas a 
             LEFT JOIN lugares l ON a.lugar_id = l.id 
-            WHERE a.lugar_id = ? 
+            WHERE a.evaluador_id = ? 
             ORDER BY a.apellido, a.nombre");
-        $stmt->execute([$lugar_evaluador]);
+        $stmt->execute([$evaluador_id]);
         return $stmt->fetchAll();
     }
 
@@ -48,8 +49,9 @@ class Atleta
     {
         global $pdo;
         
-        // Obtener el lugar del evaluador para asignarlo automáticamente al atleta
-        $lugar_evaluador = self::obtenerLugarEvaluador($evaluador_id);
+        // Por ahora asignamos lugar_id = 1 por defecto
+        // En el futuro se puede mejorar para que el evaluador tenga un lugar asignado
+        $lugar_id = 1;
         
         $stmt = $pdo->prepare("INSERT INTO atletas (
             evaluador_id, lugar_id, nombre, apellido, dni, sexo, fecha_nacimiento,
@@ -59,7 +61,7 @@ class Atleta
 
         return $stmt->execute([
             $evaluador_id,
-            $lugar_evaluador,
+            $lugar_id,
             $data['nombre'],
             $data['apellido'],
             $data['dni'],
@@ -124,20 +126,26 @@ class Atleta
         return $stmt->fetchColumn();
     }
 
-    public static function verificarPertenenciaEvaluador($atleta_id, $evaluador_id)
+    public static function verificarPertenenciaEvaluador($atleta_id, $usuario_id)
     {
         global $pdo;
-        $lugar_evaluador = self::obtenerLugarEvaluador($evaluador_id);
         
-        if (!$lugar_evaluador) {
-            // Si no hay lugar asignado, verificar por evaluador_id directamente
-            $stmt = $pdo->prepare("SELECT COUNT(*) FROM atletas WHERE id = ? AND evaluador_id = ?");
-            $stmt->execute([$atleta_id, $evaluador_id]);
-            return $stmt->fetchColumn() > 0;
+        // Obtener el evaluador_id desde el usuario_id
+        $stmt = $pdo->prepare("SELECT e.id as evaluador_id FROM evaluadores e 
+                               JOIN usuarios u ON e.email = u.email 
+                               WHERE u.id = ? LIMIT 1");
+        $stmt->execute([$usuario_id]);
+        $evaluador = $stmt->fetch();
+        
+        if (!$evaluador) {
+            return false;
         }
         
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM atletas WHERE id = ? AND lugar_id = ?");
-        $stmt->execute([$atleta_id, $lugar_evaluador]);
+        $evaluador_id = $evaluador['evaluador_id'];
+        
+        // Verificar que el atleta pertenezca a este evaluador
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM atletas WHERE id = ? AND evaluador_id = ?");
+        $stmt->execute([$atleta_id, $evaluador_id]);
         
         return $stmt->fetchColumn() > 0;
     }

@@ -4,7 +4,7 @@
 <div class="container" style="max-width: 500px; margin: 50px auto; padding: 30px;">
   <div class="card" style="border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
     <div class="card-body">
-      <h2 class="text-center mb-4" style="color: #004080;">Registro de Evaluador</h2>
+      <h2 class="text-center mb-4" style="color: #004080;">Registro de Usuario</h2>
 
       <?php if (!empty($_SESSION['error'])): ?>
         <div class="alert alert-danger" style="margin-bottom:15px;">

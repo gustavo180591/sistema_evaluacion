@@ -24,24 +24,6 @@ class AtletaController
             exit;
         }
 
-        // Asegurar que evaluador_id esté presente en sesión
-        if (!isset($_SESSION['evaluador_id'])) {
-            require_once __DIR__ . '/../models/Evaluador.php';
-            // Intentar obtener evaluador por email en sesión
-            if (!empty($_SESSION['email'])) {
-                $evaluador = Evaluador::obtenerPorEmail($_SESSION['email']);
-            } else {
-                $evaluador = false;
-            }
-            if ($evaluador) {
-                $_SESSION['evaluador_id'] = $evaluador['id'];
-            } else {
-                $_SESSION['error'] = 'Sesión de evaluador inválida.';
-                header('Location: index.php?controller=Dashboard&action=index');
-                exit;
-            }
-        }
-
         require_once __DIR__ . '/../models/Discapacidad.php';
         $discapacidades = Discapacidad::todos();
         $esAdaptado = isset($_GET['adaptado']);
@@ -49,6 +31,27 @@ class AtletaController
         $formData = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Asegurar que evaluador_id esté presente en sesión antes de procesar POST
+            if (!isset($_SESSION['evaluador_id'])) {
+                require_once __DIR__ . '/../models/Evaluador.php';
+                global $pdo;
+                $stmt = $pdo->prepare("SELECT email FROM usuarios WHERE id = ? LIMIT 1");
+                $stmt->execute([$_SESSION['usuario_id']]);
+                $user = $stmt->fetch();
+                if ($user) {
+                    $evaluador = Evaluador::obtenerPorEmail($user['email']);
+                } else {
+                    $evaluador = false;
+                }
+                if ($evaluador) {
+                    $_SESSION['evaluador_id'] = $evaluador['id'];
+                } else {
+                    $_SESSION['error'] = 'Sesión de evaluador inválida.';
+                    header('Location: index.php?controller=Dashboard&action=index');
+                    exit;
+                }
+            }
+
             // Validar datos
             if (empty($_POST['nombre'])) {
                 $errores[] = 'El nombre es requerido';
@@ -109,8 +112,6 @@ class AtletaController
 
         require_once __DIR__ . '/../views/atletas/crear.php';
     }
-
-
 
     public function editar()
     {
