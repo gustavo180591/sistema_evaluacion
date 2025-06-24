@@ -86,13 +86,13 @@ class AuthController
                 // Verificar si el email ya existe en usuarios
                 $usuario = Usuario::findByEmail($email);
                 if ($usuario) {
-                    throw new Exception('El email ya está registrado. Por favor, intenta con otro.');
+                    throw new Exception('El correo electrónico ya está registrado. Por favor, intenta con otro.');
                 }
 
                 // Verificar si el email ya existe en evaluadores
                 $evaluador = Evaluador::obtenerPorEmail($email);
                 if ($evaluador) {
-                    throw new Exception('El email ya está registrado como evaluador. Por favor, intenta con otro.');
+                    throw new Exception('El correo electrónico ya está registrado como evaluador. Por favor, intenta con otro.');
                 }
                 
                 // Iniciar transacción

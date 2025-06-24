@@ -54,13 +54,17 @@ class EvaluacionController
             $data = [
                 'atleta_id' => $atleta_id,
                 'evaluador_id' => $_SESSION['evaluador_id'],
-                'lugar_id' => $_POST['lugar_id'] ?? $atleta['lugar_id'],
                 'fecha_evaluacion' => $_POST['fecha_evaluacion'] ?? date('Y-m-d'),
                 'hora_inicio' => $_POST['hora_inicio'] ?? date('H:i:s'),
                 'observaciones' => $_POST['observaciones'] ?? null,
                 'clima' => $_POST['clima'] ?? null,
                 'temperatura_ambiente' => $_POST['temperatura_ambiente'] ?? null
             ];
+
+            // Almacenar el lugar seleccionado en la sesión por si se necesita
+            if (isset($_POST['lugar_id'])) {
+                $_SESSION['lugar_evaluacion'] = $_POST['lugar_id'];
+            }
 
             try {
                 require_once __DIR__ . '/../models/Evaluacion.php';

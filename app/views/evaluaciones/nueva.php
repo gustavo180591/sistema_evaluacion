@@ -60,9 +60,15 @@
                                             <option value="<?php echo $lugar['id']; ?>" 
                                                     <?php echo ($lugar['id'] == $atleta['lugar_id']) ? 'selected' : ''; ?>>
                                                 <?php echo htmlspecialchars($lugar['nombre']); ?>
+                                                <?php if ($lugar['zona']): ?>
+                                                    - <?php echo htmlspecialchars($lugar['zona']); ?>
+                                                <?php endif; ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
+                                    <small class="form-text text-muted">
+                                        Por defecto se selecciona el lugar asociado al atleta, pero puedes cambiarlo si es necesario.
+                                    </small>
                                 </div>
                             </div>
                             <div class="col-md-6">

@@ -5,13 +5,12 @@ class Evaluacion
     public static function crear($data)
     {
         global $pdo;
-        $stmt = $pdo->prepare("INSERT INTO evaluaciones (atleta_id, evaluador_id, lugar_id, fecha_evaluacion, hora_inicio, estado, observaciones, clima, temperatura_ambiente)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO evaluaciones (atleta_id, evaluador_id, fecha_evaluacion, hora_inicio, estado, observaciones, clima, temperatura_ambiente)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
         $stmt->execute([
             $data['atleta_id'],
             $data['evaluador_id'],
-            $data['lugar_id'],
             $data['fecha_evaluacion'],
             $data['hora_inicio'] ?? null,
             $data['estado'] ?? 'iniciada',
@@ -53,7 +52,7 @@ class Evaluacion
         $stmt = $pdo->prepare("SELECT e.*, a.nombre, a.apellido, l.nombre AS lugar_nombre
             FROM evaluaciones e
             JOIN atletas a ON e.atleta_id = a.id
-            LEFT JOIN lugares l ON e.lugar_id = l.id
+            LEFT JOIN lugares l ON a.lugar_id = l.id
             WHERE e.id = ?");
         $stmt->execute([$id]);
         return $stmt->fetch();
@@ -79,12 +78,22 @@ class Evaluacion
     public static function obtenerResultados($evaluacion_id)
     {
         global $pdo;
-        $stmt = $pdo->prepare("SELECT rt.*, t.nombre_test, t.formato_test
+        // Primero obtenemos la evaluación para saber el atleta_id
+        $stmt = $pdo->prepare("SELECT atleta_id FROM evaluaciones WHERE id = ?");
+        $stmt->execute([$evaluacion_id]);
+        $evaluacion = $stmt->fetch();
+        
+        if (!$evaluacion) {
+            return [];
+        }
+        
+        // Luego obtenemos los resultados de tests para ese atleta
+        $stmt = $pdo->prepare("SELECT rt.*, t.nombre_test, t.descripcion
             FROM resultados_tests rt
             JOIN tests t ON rt.test_id = t.id
-            WHERE rt.evaluacion_id = ?
+            WHERE rt.atleta_id = ?
             ORDER BY rt.fecha_test ASC");
-        $stmt->execute([$evaluacion_id]);
+        $stmt->execute([$evaluacion['atleta_id']]);
         return $stmt->fetchAll();
     }
 

@@ -46,7 +46,7 @@ class AtletaController
                 if ($evaluador) {
                     $_SESSION['evaluador_id'] = $evaluador['id'];
                 } else {
-                    $_SESSION['error'] = 'Sesión de evaluador inválida.';
+                    $_SESSION['error'] = 'Sesión de evaluador inválida. Por favor, inicia sesión nuevamente.';
                     header('Location: index.php?controller=Dashboard&action=index');
                     exit;
                 }

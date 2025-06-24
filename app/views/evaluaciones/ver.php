@@ -93,7 +93,7 @@
                                     <tr>
                                         <th>Test</th>
                                         <th>Fecha/Hora</th>
-                                        <th>Formato</th>
+                                        <th>Descripción</th>
                                         <th>Resultado</th>
                                         <th>Acciones</th>
                                     </tr>
@@ -106,13 +106,13 @@
                                             </td>
                                             <td>
                                                 <small class="text-muted">
-                                                    <?php echo date('d/m/Y H:i', strtotime($resultado['fecha_test'])); ?>
+                                                    <?php echo date('d/m/Y', strtotime($resultado['fecha_test'])); ?>
                                                 </small>
                                             </td>
                                             <td>
-                                                <span class="badge badge-secondary">
-                                                    <?php echo htmlspecialchars($resultado['formato_test']); ?>
-                                                </span>
+                                                <small class="text-muted">
+                                                    <?php echo htmlspecialchars($resultado['descripcion'] ?? 'Sin descripción'); ?>
+                                                </small>
                                             </td>
                                             <td>
                                                 <?php 

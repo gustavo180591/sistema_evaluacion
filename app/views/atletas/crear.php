@@ -5,7 +5,7 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
       <h2>👤 Nuevo Atleta</h2>
-      <p class="text-muted">Registra un nuevo atleta en tu establecimiento</p>
+      <p class="text-muted">Registra un nuevo atleta en tu institución</p>
     </div>
     <div>
       <a href="index.php?controller=Atleta&action=listado" class="btn btn-secondary me-2">
@@ -17,7 +17,7 @@
 
   <?php if (!empty($errores)): ?>
     <div class="alert-custom alert-danger-custom">
-      <h4>⚠️ Error en el Registro</h4>
+      <h4>⚠️ Error en el registro</h4>
       <div class="error-messages">
         <?php
         foreach ($errores as $error) {
@@ -30,8 +30,8 @@
 
   <?php if (isset($_GET['success'])): ?>
     <div class="alert-custom alert-success-custom">
-      <h4>✅ Registro Exitoso</h4>
-      <p>¡Excelente! El atleta ha sido registrado correctamente en tu establecimiento.</p>
+      <h4>✅ Registro exitoso</h4>
+      <p>¡Excelente! El atleta ha sido registrado correctamente en tu institución.</p>
     </div>
   <?php endif; ?>
 
