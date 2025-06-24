@@ -15,15 +15,23 @@
     </div>
   </div>
 
-  <?php if (isset($_GET['error'])): ?>
-    <div class="alert alert-danger">
-      <strong>⚠️ Error:</strong> Ha ocurrido un error al registrar el atleta. Verifica los datos e intenta nuevamente.
+  <?php if (!empty($errores)): ?>
+    <div class="alert-custom alert-danger-custom">
+      <h4>⚠️ Error en el Registro</h4>
+      <div class="error-messages">
+        <?php
+        foreach ($errores as $error) {
+            echo "<p>$error</p>";
+        }
+        ?>
+      </div>
     </div>
   <?php endif; ?>
 
   <?php if (isset($_GET['success'])): ?>
-    <div class="alert alert-success">
-      <strong>✅ Éxito:</strong> El atleta ha sido registrado correctamente.
+    <div class="alert-custom alert-success-custom">
+      <h4>✅ Registro Exitoso</h4>
+      <p>¡Excelente! El atleta ha sido registrado correctamente en tu establecimiento.</p>
     </div>
   <?php endif; ?>
 
@@ -45,6 +53,7 @@
                   <strong>Nombre *</strong>
                 </label>
                 <input type="text" name="nombre" id="nombre" class="form-control" 
+                       value="<?php echo isset($formData['nombre']) ? htmlspecialchars($formData['nombre']) : ''; ?>"
                        required maxlength="100" placeholder="Ingresa el nombre">
                 <div class="invalid-feedback">
                   El nombre es obligatorio

@@ -40,4 +40,45 @@ class Evaluador
         $stmt->execute([$id]);
         return $stmt->fetch();
     }
+
+    public static function obtenerPorEmail($email)
+    {
+        global $pdo;
+        $stmt = $pdo->prepare("SELECT * FROM evaluadores WHERE email = ? LIMIT 1");
+        $stmt->execute([$email]);
+        return $stmt->fetch();
+    }
+
+    public static function verificarEvaluador($usuario_id)
+    {
+        global $pdo;
+        try {
+            // Primero verificar que el usuario existe y es evaluador
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM usuarios WHERE id = ? AND rol = 'evaluador' LIMIT 1");
+            $stmt->execute([$usuario_id]);
+            $esEvaluador = $stmt->fetchColumn() > 0;
+            
+            if (!$esEvaluador) {
+                return false;
+            }
+            
+            // Obtener el email del usuario
+            $stmt = $pdo->prepare("SELECT email FROM usuarios WHERE id = ? LIMIT 1");
+            $stmt->execute([$usuario_id]);
+            $usuario = $stmt->fetch();
+            
+            if (!$usuario) {
+                return false;
+            }
+            
+            // Verificar si existe un evaluador con ese email
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM evaluadores WHERE email = ? LIMIT 1");
+            $stmt->execute([$usuario['email']]);
+            return $stmt->fetchColumn() > 0;
+            
+        } catch (Exception $e) {
+            error_log("Error verificando evaluador: " . $e->getMessage());
+            return false;
+        }
+    }
 }

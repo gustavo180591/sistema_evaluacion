@@ -14,8 +14,11 @@ class Usuario
     {
         global $pdo;
         $hash = password_hash($password, PASSWORD_DEFAULT);
+
         $stmt = $pdo->prepare("INSERT INTO usuarios (nombre, apellido, email, password, rol) VALUES (?, ?, ?, ?, ?)");
-        return $stmt->execute([$nombre, $apellido, $email, $hash, $rol]);
+        $stmt->execute([$nombre, $apellido, $email, $hash, $rol]);
+
+        return true;
     }
 
     public static function todos()

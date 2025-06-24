@@ -24,16 +24,32 @@ class AtletaController
             exit;
         }
 
+        // Asegurar que evaluador_id esté presente en sesión
+        if (!isset($_SESSION['evaluador_id'])) {
+            require_once __DIR__ . '/../models/Evaluador.php';
+            // Intentar obtener evaluador por email en sesión
+            if (!empty($_SESSION['email'])) {
+                $evaluador = Evaluador::obtenerPorEmail($_SESSION['email']);
+            } else {
+                $evaluador = false;
+            }
+            if ($evaluador) {
+                $_SESSION['evaluador_id'] = $evaluador['id'];
+            } else {
+                $_SESSION['error'] = 'Sesión de evaluador inválida.';
+                header('Location: index.php?controller=Dashboard&action=index');
+                exit;
+            }
+        }
+
         require_once __DIR__ . '/../models/Discapacidad.php';
         $discapacidades = Discapacidad::todos();
         $esAdaptado = isset($_GET['adaptado']);
+        $errores = [];
+        $formData = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            require_once __DIR__ . '/../models/Atleta.php';
-            
             // Validar datos
-            $errores = [];
-            
             if (empty($_POST['nombre'])) {
                 $errores[] = 'El nombre es requerido';
             }
@@ -54,11 +70,10 @@ class AtletaController
             if ($esAdaptado && empty($_POST['discapacidad_id'])) {
                 $errores[] = 'La discapacidad es obligatoria para atletas adaptados';
             }
-            
+
             if (empty($errores)) {
                 try {
                     $data = [
-                        'evaluador_id' => $_SESSION['usuario_id'],
                         'nombre' => $_POST['nombre'],
                         'apellido' => $_POST['apellido'],
                         'dni' => $_POST['dni'],
@@ -70,10 +85,11 @@ class AtletaController
                         'altura_sentado_cm' => $_POST['altura_sentado_cm'] ?? null,
                         'lateralidad_visual' => $_POST['lateralidad_visual'] ?? null,
                         'lateralidad_podal' => $_POST['lateralidad_podal'] ?? null,
-                        'discapacidad_id' => $_POST['discapacidad_id'] ?? null
+                        'discapacidad_id' => !empty($_POST['discapacidad_id']) ? (int)$_POST['discapacidad_id'] : null
                     ];
                     
-                    Atleta::crear($_SESSION['usuario_id'], $data);
+                    // Usar el ID del evaluador correcto desde sesión
+                    Atleta::crear($_SESSION['evaluador_id'], $data);
                     
                     // Redirigir a la vista de adaptados si venimos de ahí
                     if ($esAdaptado) {
@@ -85,6 +101,9 @@ class AtletaController
                 } catch (Exception $e) {
                     $errores[] = 'Error al crear el atleta: ' . $e->getMessage();
                 }
+            } else {
+                // Mantener los datos del formulario si hay errores
+                $formData = $_POST;
             }
         }
 

@@ -29,8 +29,6 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: sistema_evaluacion
       MYSQL_ROOT_HOST: '%'
-      MYSQL_USER: sistema
-      MYSQL_PASSWORD: Sistema123!
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -38,8 +36,8 @@ services:
       - "8081:80"
     environment:
       PMA_HOST: mysql
-      PMA_USER: sistema
-      PMA_PASSWORD: Sistema123!
+      PMA_USER: root
+      PMA_PASSWORD: root
       PMA_PORT: 3306
 
 volumes:

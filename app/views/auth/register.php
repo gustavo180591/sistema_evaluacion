@@ -6,6 +6,17 @@
     <div class="card-body">
       <h2 class="text-center mb-4" style="color: #004080;">Registro de Evaluador</h2>
 
+      <?php if (!empty($_SESSION['error'])): ?>
+        <div class="alert alert-danger" style="margin-bottom:15px;">
+          <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
+        </div>
+      <?php endif; ?>
+      <?php if (!empty($_SESSION['success'])): ?>
+        <div class="alert alert-success" style="margin-bottom:15px;">
+          <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
+        </div>
+      <?php endif; ?>
+
       <form method="POST" action="index.php?controller=Auth&action=register" class="needs-validation" novalidate>
         <div class="mb-3">
           <label for="nombre" class="form-label">Nombre</label>
