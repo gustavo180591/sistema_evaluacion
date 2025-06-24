@@ -19,8 +19,18 @@ $host = getenv('DB_HOST') ?: 'mysql';
 $db   = getenv('DB_DATABASE') ?: 'sistema_evaluacion';
 $user = getenv('DB_USERNAME') ?: 'root';
 $pass = getenv('DB_PASSWORD') ?: 'root';
-$charset = 'utf8mb4';
+$charset = getenv('DB_CHARSET') ?: 'utf8mb4';
+$collation = getenv('DB_COLLATION') ?: 'utf8mb4_unicode_ci';
 $port = getenv('DB_PORT') ?: '3306';
+
+// Asegurar que la base de datos use la misma codificación
+try {
+    $pdo = new PDO("mysql:host=$host;port=$port;dbname=$db;charset=$charset", $user, $pass, $options);
+    $pdo->exec("SET NAMES $charset COLLATE $collation");
+} catch (PDOException $e) {
+    error_log("Error de conexión a la base de datos: " . $e->getMessage());
+    throw new PDOException("Error al conectar a la base de datos", (int)$e->getCode());
+}
 
 $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
 $options = [
