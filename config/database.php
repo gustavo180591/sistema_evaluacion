@@ -26,13 +26,6 @@ $port = getenv('DB_PORT') ?: '3306';
 // Asegurar que la base de datos use la misma codificación
 try {
     $pdo = new PDO("mysql:host=$host;port=$port;dbname=$db;charset=$charset", $user, $pass, $options);
-    $pdo->exec("SET NAMES $charset COLLATE $collation");
-} catch (PDOException $e) {
-    error_log("Error de conexión a la base de datos: " . $e->getMessage());
-    throw new PDOException("Error al conectar a la base de datos", (int)$e->getCode());
-}
-
-$dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
 $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -40,8 +33,12 @@ $options = [
     PDO::ATTR_PERSISTENT         => true,
 ];
 
+$dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
+
+// Asegurar que la base de datos use la misma codificación
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
+    $pdo->exec("SET NAMES $charset COLLATE $collation");
 } catch (PDOException $e) {
     error_log("Error de conexión a la base de datos: " . $e->getMessage());
     throw new PDOException("Error al conectar a la base de datos", (int)$e->getCode());
