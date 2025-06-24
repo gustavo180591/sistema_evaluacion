@@ -73,7 +73,7 @@ class AtletaController
                         'discapacidad_id' => $_POST['discapacidad_id'] ?? null
                     ];
                     
-                    Atleta::crear($data);
+                    Atleta::crear($_SESSION['usuario_id'], $data);
                     
                     // Redirigir a la vista de adaptados si venimos de ahí
                     if ($esAdaptado) {
@@ -90,6 +90,8 @@ class AtletaController
 
         require_once __DIR__ . '/../views/atletas/crear.php';
     }
+
+
 
     public function editar()
     {

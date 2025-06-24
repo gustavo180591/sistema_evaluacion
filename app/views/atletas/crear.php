@@ -8,9 +8,10 @@
       <p class="text-muted">Registra un nuevo atleta en tu establecimiento</p>
     </div>
     <div>
-      <a href="index.php?controller=Atleta&action=listado" class="btn btn-secondary">
+      <a href="index.php?controller=Atleta&action=listado" class="btn btn-secondary me-2">
         ← Volver al Listado
       </a>
+
     </div>
   </div>
 
@@ -33,6 +34,8 @@
       <div class="card mb-4">
         <div class="card-header" style="background: linear-gradient(135deg, var(--color-azul) 0%, #0056b3 100%); color: white;">
           <h5 class="mb-0">👤 Información Personal</h5>
+        </div>
+        <div class="card-body">
         </div>
         <div class="card-body">
           <div class="row">

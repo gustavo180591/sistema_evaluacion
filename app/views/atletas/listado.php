@@ -38,7 +38,7 @@
         <?php if ($_GET['success'] === 'deleted' && isset($_GET['nombre'])): ?>
           <strong>✅ Éxito:</strong> El atleta "<?php echo htmlspecialchars(urldecode($_GET['nombre'])); ?>" ha sido eliminado correctamente junto con todos sus datos.
         <?php else: ?>
-          <strong>✅ Éxito:</strong> El atleta ha sido actualizado correctamente.
+          <strong>✅ Éxito:</strong> El atleta ha sido creado correctamente.
         <?php endif; ?>
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
