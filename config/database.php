@@ -23,9 +23,6 @@ $charset = getenv('DB_CHARSET') ?: 'utf8mb4';
 $collation = getenv('DB_COLLATION') ?: 'utf8mb4_unicode_ci';
 $port = getenv('DB_PORT') ?: '3306';
 
-// Asegurar que la base de datos use la misma codificación
-try {
-    $pdo = new PDO("mysql:host=$host;port=$port;dbname=$db;charset=$charset", $user, $pass, $options);
 $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -35,7 +32,6 @@ $options = [
 
 $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
 
-// Asegurar que la base de datos use la misma codificación
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
     $pdo->exec("SET NAMES $charset COLLATE $collation");
