@@ -7,7 +7,7 @@
       <h2>👥 Mis Atletas</h2>
       <p class="text-muted">Gestiona los atletas registrados en tu establecimiento</p>
       <div class="mt-3">
-        <a href="index.php?controller=Atleta&action=adaptados" class="btn btn-outline-warning">
+        <a href="index.php?controller=Atleta&action=adaptados" class="btn btn-primary">
           <i class="fas fa-wheelchair"></i> Ver Atletas Adaptados
         </a>
       </div>

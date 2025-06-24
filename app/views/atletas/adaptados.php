@@ -79,17 +79,20 @@
                                     <td>
                                         <div class="btn-group">
                                             <a href="index.php?controller=Atleta&action=editar&id=<?php echo $atleta['id']; ?>" 
-                                               class="btn btn-sm btn-warning me-1">
-                                                <i class="fas fa-edit"></i>
+                                               class="btn btn-sm btn-warning me-1"
+                                               title="Editar">
+                                                <i class="fas fa-edit"></i> Editar
                                             </a>
                                             <a href="index.php?controller=Atleta&action=historial&id=<?php echo $atleta['id']; ?>" 
-                                               class="btn btn-sm btn-info me-1">
-                                                <i class="fas fa-history"></i>
+                                               class="btn btn-sm btn-info me-1"
+                                               title="Ver Historial">
+                                                <i class="fas fa-history"></i> Historial
                                             </a>
                                             <a href="index.php?controller=Atleta&action=eliminar&id=<?php echo $atleta['id']; ?>" 
                                                class="btn btn-sm btn-danger" 
-                                               onclick="return confirm('¿Estás seguro de eliminar este atleta?')">
-                                                <i class="fas fa-trash"></i>
+                                               onclick="return confirm('¿Estás seguro de eliminar este atleta?')"
+                                               title="Eliminar">
+                                                <i class="fas fa-trash"></i> Eliminar
                                             </a>
                                         </div>
                                     </td>
