@@ -94,12 +94,14 @@ CREATE TABLE evaluaciones (
 -- Tabla de Resultados de Tests
 CREATE TABLE resultados_tests (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    evaluacion_id INT,
     atleta_id INT,
     evaluador_id INT,
     test_id INT,
     lugar_id INT,
     fecha_test DATE,
     resultado_json JSON,
+    FOREIGN KEY (evaluacion_id) REFERENCES evaluaciones(id) ON DELETE CASCADE,
     FOREIGN KEY (atleta_id) REFERENCES atletas(id) ON DELETE CASCADE,
     FOREIGN KEY (evaluador_id) REFERENCES evaluadores(id) ON DELETE SET NULL,
     FOREIGN KEY (test_id) REFERENCES tests(id),
