@@ -14,6 +14,9 @@ Un sistema completo para la gestión de evaluaciones físicas y deportivas, dise
 - 🐳 Soporte nativo para Docker
 - 🚽 Gestión de discapacidades para atletas adaptados
 - 📇 Asignación de discapacidades en perfiles de atletas
+- 🔄 Sistema de registro y autenticación mejorado
+- 📝 Validación de permisos de evaluador mejorada
+- 🔄 Manejo de transacciones mejorado para integridad de datos
 
 ## 📥 Exportación de datos
 
@@ -36,7 +39,7 @@ Un sistema completo para la gestión de evaluaciones físicas y deportivas, dise
 ### Requisitos mínimos
 
 - PHP >= 8.1
-- MySQL 5.7+
+- MySQL 8.0+
 - Apache o Nginx con mod_rewrite
 - Composer
 - PHP Extensions:
@@ -44,6 +47,8 @@ Un sistema completo para la gestión de evaluaciones físicas y deportivas, dise
   - mbstring
   - dompdf
   - PhpSpreadsheet
+  - password_hash
+  - filter_var
 
 ### Dependencias PHP
 
@@ -63,7 +68,7 @@ Un sistema completo para la gestión de evaluaciones físicas y deportivas, dise
 
 1. Clonar el repositorio:
 ```bash
-git clone [URL_DEL_REPOSITORIO]
+git clone https://github.com/gustavo180591/sistema_evaluacion.git
 cd sistema_evaluacion
 ```
 
@@ -79,7 +84,7 @@ cp .env.example .env
 
 4. Crear la base de datos y ejecutar las migraciones:
 ```bash
-php artisan migrate
+mysql -u root -p < database.sql
 ```
 
 5. Iniciar el servidor de desarrollo:
@@ -91,12 +96,17 @@ php -S localhost:8000 -t public
 
 1. Construir y ejecutar los contenedores:
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 2. Acceder a la aplicación:
 ```
-http://localhost
+http://localhost:8080
+```
+
+3. Acceder a phpMyAdmin:
+```
+http://localhost:8081
 ```
 
 ## 🧑‍💻 Estructura del proyecto
