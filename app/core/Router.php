@@ -19,7 +19,9 @@ class Router
         if (file_exists($controllerFile)) {
             require_once $controllerFile;
             if (class_exists($controllerClass)) {
-                $controller = new $controllerClass();
+                // Pass database connection to controller if it accepts it in constructor
+                global $pdo; // Assuming $pdo is the database connection from database.php
+                $controller = new $controllerClass($pdo);
                 if (method_exists($controller, $action)) {
                     $controller->$action();
                 } else {

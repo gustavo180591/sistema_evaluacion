@@ -27,7 +27,7 @@ class ReporteController {
             ];
             
             // Total de atletas del evaluador
-            $stmt = $db->prepare("SELECT COUNT(*) as total FROM atletas WHERE evaluador_id = ?");
+            $stmt = $this->db->prepare("SELECT COUNT(*) as total FROM atletas WHERE evaluador_id = ?");
             $stmt->execute([$evaluadorId]);
             $stats['total_atletas'] = $stmt->fetch()['total'];
             
