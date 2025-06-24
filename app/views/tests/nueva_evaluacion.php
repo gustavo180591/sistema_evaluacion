@@ -21,7 +21,34 @@
     <div class="alert alert-warning">
       <h5>⚠️ Sin atletas asignados</h5>
       <p>No tienes atletas asignados a tu establecimiento. Contacta al administrador para que te asigne atletas.</p>
-      <a href="index.php?controller=Dashboard&action=index" class="btn btn-primary">Volver al Dashboard</a>
+      <a href="index.php?controller=Dashboard&action=index" class="btn" style="
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 10px 20px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3);
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+      ">
+        <i class="fas fa-arrow-left"></i> Volver al Dashboard
+      </a>
+      <style>
+        .btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 7px 20px rgba(106, 17, 203, 0.4);
+          text-decoration: none;
+        }
+        .btn:active {
+          transform: translateY(0);
+        }
+      </style>
     </div>
   <?php else: ?>
     <div class="form-container">
@@ -112,8 +139,8 @@
         </div>
 
         <div class="d-flex justify-content-between">
-          <a href="index.php?controller=Test&action=resultados" class="btn btn-secondary">
-            ← Volver
+          <a href="index.php?controller=Test&action=resultados" class="btn-volver">
+            <i class="fas fa-arrow-left"></i> Volver
           </a>
           <button type="submit" class="btn btn-success">
             ✅ Crear Evaluación

@@ -8,8 +8,8 @@
       <p class="text-muted">Registra un nuevo atleta en tu institución</p>
     </div>
     <div>
-      <a href="index.php?controller=Atleta&action=listado" class="btn btn-secondary me-2">
-        ← Volver al Listado
+      <a href="index.php?controller=Atleta&action=listado" class="btn-volver me-2">
+        <i class="fas fa-arrow-left"></i> Volver al Listado
       </a>
 
     </div>

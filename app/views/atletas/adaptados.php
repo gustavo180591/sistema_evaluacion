@@ -8,8 +8,8 @@
             <p class="text-muted">Lista de atletas con discapacidad asignada</p>
         </div>
         <div class="btn-group">
-            <a href="index.php?controller=Atleta&action=listado" class="btn btn-secondary">
-                ← Volver a Atletas
+            <a href="index.php?controller=Atleta&action=listado" class="btn-volver me-2">
+                <i class="fas fa-arrow-left"></i> Volver a Atletas
             </a>
             <a href="index.php?controller=Atleta&action=crear&adaptado=1" class="btn btn-success">
                 <i class="fas fa-plus"></i> Nuevo Atleta Adaptado

@@ -13,8 +13,8 @@
       </p>
     </div>
     <div>
-      <a href="index.php?controller=Test&action=resultados" class="btn btn-secondary">
-        ← Volver
+      <a href="index.php?controller=Test&action=resultados" class="btn-volver">
+        <i class="fas fa-arrow-left"></i> Volver
       </a>
     </div>
   </div>

@@ -8,8 +8,8 @@
       <p class="text-muted">Modifica los datos del atleta <?php echo htmlspecialchars($atleta['nombre'] . ' ' . $atleta['apellido']); ?></p>
     </div>
     <div>
-      <a href="index.php?controller=Atleta&action=listado" class="btn btn-secondary">
-        ← Volver al Listado
+      <a href="index.php?controller=Atleta&action=listado" class="btn-volver">
+        <i class="fas fa-arrow-left"></i> Volver al Listado
       </a>
     </div>
   </div>
