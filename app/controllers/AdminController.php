@@ -2,9 +2,15 @@
 
 class AdminController
 {
+    public function __construct()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+    }
+    
     public function usuarios()
     {
-        session_start();
         if ($_SESSION['rol'] !== 'administrador') {
             header('Location: index.php?controller=Dashboard');
             exit;
@@ -18,7 +24,6 @@ class AdminController
 
     public function estadisticas()
     {
-        session_start();
         if ($_SESSION['rol'] !== 'administrador') {
             header('Location: index.php?controller=Dashboard');
             exit;

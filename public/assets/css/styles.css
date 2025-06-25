@@ -264,6 +264,102 @@ button:hover {
   border-bottom: none;
 }
 
+/* Estilos para la sección de administración de usuarios */
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.header-section h2 {
+    margin: 0;
+    color: var(--color-azul);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 0.95em;
+    background: white;
+    border-radius: var(--borde-radius);
+    overflow: hidden;
+    box-shadow: var(--sombra-suave);
+}
+
+.data-table thead tr {
+    background-color: var(--color-azul);
+    color: white;
+    text-align: left;
+}
+
+.data-table th,
+.data-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--color-gris-medio);
+}
+
+.data-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.data-table tbody tr:hover {
+    background-color: rgba(0, 64, 128, 0.05);
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.actions .btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+}
+
+.actions .btn i {
+    margin: 0;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Responsive table */
+@media (max-width: 992px) {
+    .data-table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .header-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .header-section .btn {
+        width: 100%;
+        margin-top: 10px;
+    }
+}
+
 /* Formularios mejorados */
 .form-container {
   background: var(--color-blanco);

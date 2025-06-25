@@ -3,12 +3,17 @@ require_once __DIR__ . '/../componentes/navbar.php';
 ?>
 
 <div class="container mt-4">
-    <h2>Administración de Usuarios</h2>
+    <div class="header-section">
+        <h2><i class="fas fa-users-cog"></i> Administración de Usuarios</h2>
+        <a href="index.php?controller=Admin&action=nuevoUsuario" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nuevo Usuario
+        </a>
+    </div>
     
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-striped">
+                <table class="data-table">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -17,9 +22,9 @@ require_once __DIR__ . '/../componentes/navbar.php';
                             <th>Email</th>
                             <th>Rol</th>
                             <th>Estado</th>
-                            <th>Fecha Registro</th>
-                            <th>Fecha Actualización</th>
-                            <th>Acciones</th>
+                            <th>Registro</th>
+                            <th>Actualización</th>
+                            <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -41,9 +46,16 @@ require_once __DIR__ . '/../componentes/navbar.php';
                             <td><?php echo htmlspecialchars($usuario['estado']); ?></td>
                             <td><?php echo htmlspecialchars(date('d/m/Y H:i', strtotime($usuario['fecha_registro']))); ?></td>
                             <td><?php echo htmlspecialchars(date('d/m/Y H:i', strtotime($usuario['fecha_actualizacion']))); ?></td>
-                            <td>
-                                <a href="index.php?controller=Admin&action=editarUsuario&id=<?php echo $usuario['id']; ?>" class="btn btn-primary btn-sm">Editar</a>
-                                <a href="index.php?controller=Admin&action=eliminarUsuario&id=<?php echo $usuario['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Está seguro de eliminar este usuario?');">Eliminar</a>
+                            <td class="actions">
+                                <a href="index.php?controller=Admin&action=editarUsuario&id=<?php echo $usuario['id']; ?>" class="btn btn-primary btn-sm" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="index.php?controller=Admin&action=eliminarUsuario&id=<?php echo $usuario['id']; ?>" 
+                                   class="btn btn-danger btn-sm" 
+                                   title="Eliminar"
+                                   onclick="return confirm('¿Está seguro de eliminar este usuario?');">
+                                    <i class="fas fa-trash"></i>
+                                </a>
                             </td>
                         </tr>
                         <?php 
