@@ -72,9 +72,15 @@
                                 </span>
                             </td>
                             <td class="align-middle">
-                                <span class="badge bg-<?php echo $usuario['estado'] === 'activo' ? 'success' : 'danger'; ?>" style="font-size: 0.8em;">
-                                    <?php echo ucfirst(htmlspecialchars($usuario['estado'])); ?>
-                                </span>
+                                <form method="POST" action="index.php?controller=Admin&action=toggleEstadoUsuario" class="d-inline">
+                                    <input type="hidden" name="id" value="<?php echo $usuario['id']; ?>">
+                                    <input type="hidden" name="estado_actual" value="<?php echo $usuario['estado']; ?>">
+                                    <button type="submit" class="btn btn-sm <?php echo $usuario['estado'] === 'activo' ? 'btn-outline-danger' : 'btn-outline-success'; ?>" 
+                                            title="<?php echo $usuario['estado'] === 'activo' ? 'Desactivar usuario' : 'Activar usuario'; ?>">
+                                        <i class="fas fa-<?php echo $usuario['estado'] === 'activo' ? 'times' : 'check'; ?> me-1"></i>
+                                        <?php echo $usuario['estado'] === 'activo' ? 'Desactivar' : 'Activar'; ?>
+                                    </button>
+                                </form>
                             </td>
                             <td class="align-middle" style="font-size: 0.9em;">
                                 <?php echo date('d/m/Y', strtotime($usuario['fecha_registro'])); ?>
@@ -85,17 +91,19 @@
                                 <small class="d-block text-muted"><?php echo date('H:i', strtotime($usuario['fecha_actualizacion'])); ?></small>
                             </td>
                             <td class="align-middle">
-                                <div class="btn-group btn-group-sm" role="group">
+                                <div class="d-flex flex-column gap-1">
                                     <a href="index.php?controller=Admin&action=editarUsuario&id=<?php echo $usuario['id']; ?>" 
-                                       class="btn btn-outline-primary" 
-                                       title="Editar">
-                                        <i class="fas fa-edit"></i>
+                                       class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center" 
+                                       title="Editar usuario">
+                                        <i class="fas fa-edit me-1"></i>
+                                        <span>Editar</span>
                                     </a>
                                     <a href="index.php?controller=Admin&action=eliminarUsuario&id=<?php echo $usuario['id']; ?>" 
-                                       class="btn btn-outline-danger" 
-                                       title="Eliminar"
+                                       class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center" 
+                                       title="Eliminar usuario"
                                        onclick="return confirm('¿Está seguro de eliminar este usuario?');">
-                                        <i class="fas fa-trash"></i>
+                                        <i class="fas fa-trash me-1"></i>
+                                        <span>Eliminar</span>
                                     </a>
                                 </div>
                             </td>

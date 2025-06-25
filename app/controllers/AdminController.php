@@ -97,4 +97,38 @@ class AdminController
         
         require_once __DIR__ . '/../views/admin/formulario_usuario.php';
     }
+    
+    public function toggleEstadoUsuario() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || $_SESSION['rol'] !== 'administrador') {
+            header('Location: index.php?controller=Dashboard');
+            exit;
+        }
+
+        $id = $_POST['id'] ?? null;
+        $estado_actual = $_POST['estado_actual'] ?? '';
+        $nuevo_estado = $estado_actual === 'activo' ? 'inactivo' : 'activo';
+
+        if ($id) {
+            require_once __DIR__ . '/../models/Usuario.php';
+            
+            try {
+                global $pdo;
+                $stmt = $pdo->prepare("UPDATE usuarios SET estado = ?, fecha_actualizacion = NOW() WHERE id = ?");
+                $result = $stmt->execute([$nuevo_estado, $id]);
+                
+                if ($result) {
+                    $_SESSION['mensaje'] = 'Estado del usuario actualizado correctamente';
+                } else {
+                    $_SESSION['error'] = 'Error al actualizar el estado del usuario';
+                }
+            } catch (PDOException $e) {
+                $_SESSION['error'] = 'Error en la base de datos: ' . $e->getMessage();
+            }
+        } else {
+            $_SESSION['error'] = 'ID de usuario no proporcionado';
+        }
+        
+        header('Location: index.php?controller=Admin&action=usuarios');
+        exit;
+    }
 }
