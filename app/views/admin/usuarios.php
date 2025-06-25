@@ -1,17 +1,156 @@
 <?php require_once __DIR__ . '/../layout/header.php'; ?>
 <?php require_once __DIR__ . '/../componentes/navbar.php'; ?>
 
-<div class="container" style="max-width: 1200px; margin: 30px auto; padding: 20px;">
-    <div class="card" style="border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0" style="color: #004080;">
-                    <i class="fas fa-users-cog"></i> Administración de Usuarios
-                </h2>
-                <a href="index.php?controller=Admin&action=nuevoUsuario" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Nuevo Usuario
-                </a>
+<style>
+    .user-table {
+        --bs-table-bg: #fff;
+        --bs-table-striped-bg: #f8f9fa;
+        --bs-table-hover-bg: #f1f3f5;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+    
+    .user-table thead th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        padding: 1rem 1.25rem;
+    }
+    
+    .user-table tbody td {
+        padding: 1rem 1.25rem;
+        vertical-align: middle;
+        border-color: #edf2f7;
+    }
+    
+    .user-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .status-toggle {
+        position: relative;
+        display: inline-block;
+        width: 80px;
+        height: 30px;
+    }
+    
+    .status-toggle input { 
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .status-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #dc3545;
+        transition: .4s;
+        border-radius: 34px;
+    }
+    
+    .status-slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    
+    input:checked + .status-slider {
+        background-color: #28a745;
+    }
+    
+    input:checked + .status-slider:before {
+        transform: translateX(50px);
+    }
+    
+    .status-label {
+        position: absolute;
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 600;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+    
+    .status-label-on {
+        left: 10px;
+        display: none;
+    }
+    
+    .status-label-off {
+        right: 10px;
+    }
+    
+    input:checked + .status-slider .status-label-on {
+        display: block;
+    }
+    
+    input:checked + .status-slider .status-label-off {
+        display: none;
+    }
+    
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .action-btn i {
+        font-size: 0.9em;
+    }
+    
+    .card {
+        border: none;
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.05);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .table-responsive {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="card">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-0 fw-bold text-primary">
+                    <i class="fas fa-users-cog me-2"></i>Administración de Usuarios
+                </h4>
+                <p class="text-muted mb-0 small">Gestión de usuarios del sistema</p>
             </div>
+            <a href="index.php?controller=Admin&action=nuevoUsuario" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-1"></i> Nuevo Usuario
+            </a>
+        </div>
             
             <?php if (isset($_SESSION['mensaje'])): ?>
                 <div class="alert alert-success" style="margin-bottom: 20px;">
@@ -32,18 +171,18 @@
             <?php endif; ?>
             
             <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-light">
+                <table class="table table-hover user-table mb-0">
+                    <thead>
                         <tr>
-                            <th style="border-top-left-radius: 8px;">ID</th>
+                            <th style="width: 60px;">ID</th>
                             <th>Nombre</th>
                             <th>Apellido</th>
                             <th>Email</th>
                             <th>Rol</th>
-                            <th>Estado</th>
-                            <th>Registro</th>
-                            <th>Actualización</th>
-                            <th style="border-top-right-radius: 8px;" class="text-center">Acciones</th>
+                            <th style="width: 120px;">Estado</th>
+                            <th style="width: 140px;">Registro</th>
+                            <th style="width: 160px;">Actualización</th>
+                            <th style="width: 150px;" class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -72,37 +211,45 @@
                                 </span>
                             </td>
                             <td class="align-middle">
-                                <form method="POST" action="index.php?controller=Admin&action=toggleEstadoUsuario" class="d-inline">
+                                <form method="POST" action="index.php?controller=Admin&action=toggleEstadoUsuario" class="d-inline-block">
                                     <input type="hidden" name="id" value="<?php echo $usuario['id']; ?>">
                                     <input type="hidden" name="estado_actual" value="<?php echo $usuario['estado']; ?>">
-                                    <button type="submit" class="btn btn-sm <?php echo $usuario['estado'] === 'activo' ? 'btn-outline-danger' : 'btn-outline-success'; ?>" 
-                                            title="<?php echo $usuario['estado'] === 'activo' ? 'Desactivar usuario' : 'Activar usuario'; ?>">
-                                        <i class="fas fa-<?php echo $usuario['estado'] === 'activo' ? 'times' : 'check'; ?> me-1"></i>
-                                        <?php echo $usuario['estado'] === 'activo' ? 'Desactivar' : 'Activar'; ?>
-                                    </button>
+                                    <label class="status-toggle">
+                                        <input type="checkbox" <?php echo $usuario['estado'] === 'activo' ? 'checked' : ''; ?> 
+                                               onchange="this.form.submit()" 
+                                               title="<?php echo $usuario['estado'] === 'activo' ? 'Desactivar usuario' : 'Activar usuario'; ?>">
+                                        <span class="status-slider">
+                                            <span class="status-label status-label-on">ON</span>
+                                            <span class="status-label status-label-off">OFF</span>
+                                        </span>
+                                    </label>
                                 </form>
                             </td>
-                            <td class="align-middle" style="font-size: 0.9em;">
-                                <?php echo date('d/m/Y', strtotime($usuario['fecha_registro'])); ?>
-                                <small class="d-block text-muted"><?php echo date('H:i', strtotime($usuario['fecha_registro'])); ?></small>
-                            </td>
-                            <td class="align-middle" style="font-size: 0.9em;">
-                                <?php echo date('d/m/Y', strtotime($usuario['fecha_actualizacion'])); ?>
-                                <small class="d-block text-muted"><?php echo date('H:i', strtotime($usuario['fecha_actualizacion'])); ?></small>
+                            <td class="align-middle">
+                                <div class="d-flex flex-column">
+                                    <span class="text-dark fw-medium"><?php echo date('d/m/Y', strtotime($usuario['fecha_registro'])); ?></span>
+                                    <small class="text-muted"><?php echo date('H:i', strtotime($usuario['fecha_registro'])); ?></small>
+                                </div>
                             </td>
                             <td class="align-middle">
-                                <div class="d-flex flex-column gap-1">
+                                <div class="d-flex flex-column">
+                                    <span class="text-dark fw-medium"><?php echo date('d/m/Y', strtotime($usuario['fecha_actualizacion'])); ?></span>
+                                    <small class="text-muted"><?php echo date('H:i', strtotime($usuario['fecha_actualizacion'])); ?></small>
+                                </div>
+                            </td>
+                            <td class="align-middle">
+                                <div class="d-flex justify-content-center">
                                     <a href="index.php?controller=Admin&action=editarUsuario&id=<?php echo $usuario['id']; ?>" 
-                                       class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center" 
+                                       class="action-btn btn-outline-primary text-primary" 
                                        title="Editar usuario">
-                                        <i class="fas fa-edit me-1"></i>
+                                        <i class="far fa-edit"></i>
                                         <span>Editar</span>
                                     </a>
                                     <a href="index.php?controller=Admin&action=eliminarUsuario&id=<?php echo $usuario['id']; ?>" 
-                                       class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center" 
+                                       class="action-btn btn-outline-danger text-danger ms-2" 
                                        title="Eliminar usuario"
                                        onclick="return confirm('¿Está seguro de eliminar este usuario?');">
-                                        <i class="fas fa-trash me-1"></i>
+                                        <i class="far fa-trash-alt"></i>
                                         <span>Eliminar</span>
                                     </a>
                                 </div>
