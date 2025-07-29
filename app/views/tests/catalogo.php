@@ -60,7 +60,7 @@
       <!-- Test de Salto de Longitud -->
       <div class="col-md-6 col-lg-4 d-flex">
         <div class="card shadow h-100 border-0 test-card">
-          <div class="card-header text-white test-card-header" style="background-color: #6f42c1;">
+          <div class="card-header test-card-header">
             <div class="d-flex align-items-center">
               <span class="test-icon rounded-circle d-flex align-items-center justify-content-center me-3">🦘</span>
               <h5 class="mb-0 flex-grow-1">Test de Salto de Longitud</h5>

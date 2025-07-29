@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'captacion/sistema',
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
-        'reference' => null,
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
+        'reference' => 'c0a4d8e3249e348fa524f45a1654e15bf5b0947a',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'captacion/sistema' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
-            'reference' => null,
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'reference' => 'c0a4d8e3249e348fa524f45a1654e15bf5b0947a',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
