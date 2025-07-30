@@ -175,11 +175,12 @@ class Atleta
         $campoActivoExiste = $checkStmt->rowCount() > 0;
         
         if ($campoActivoExiste) {
+            // Para evaluaciones, permitir buscar atletas activos e inactivos
             $stmt = $pdo->prepare("SELECT a.*, l.nombre as lugar_nombre, d.nombre as discapacidad_nombre, d.tipo as discapacidad_tipo 
                 FROM atletas a 
                 LEFT JOIN lugares l ON a.lugar_id = l.id 
                 LEFT JOIN discapacidades d ON a.discapacidad_id = d.id 
-                WHERE a.id = ? AND a.activo = TRUE LIMIT 1");
+                WHERE a.id = ? LIMIT 1");
         } else {
             $stmt = $pdo->prepare("SELECT a.*, l.nombre as lugar_nombre, d.nombre as discapacidad_nombre, d.tipo as discapacidad_tipo 
                 FROM atletas a 

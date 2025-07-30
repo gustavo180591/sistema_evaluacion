@@ -19,11 +19,8 @@ class EvaluacionController
         require_once __DIR__ . '/../models/Atleta.php';
         require_once __DIR__ . '/../models/Lugar.php';
 
-        // Verificar que el atleta pertenezca al evaluador
-        if (!Atleta::verificarPertenenciaEvaluador($atleta_id, $_SESSION['usuario_id'])) {
-            header('Location: index.php?controller=Atleta&action=listado&error=atleta_no_autorizado');
-            exit;
-        }
+        // PERMISOS AMPLIOS: Cualquier evaluador puede evaluar cualquier atleta
+        // Se removió la verificación de pertenencia para permitir evaluaciones flexibles
 
         // Obtener datos del atleta
         $atleta = Atleta::buscarPorId($atleta_id);
@@ -197,11 +194,8 @@ class EvaluacionController
         require_once __DIR__ . '/../models/Evaluacion.php';
         require_once __DIR__ . '/../models/ResultadoTest.php';
 
-        // Verificar que el atleta pertenezca al evaluador
-        if (!Atleta::verificarPertenenciaEvaluador($atleta_id, $_SESSION['usuario_id'])) {
-            header('Location: index.php?controller=Atleta&action=listado&error=atleta_no_autorizado');
-            exit;
-        }
+        // PERMISOS AMPLIOS: Cualquier evaluador puede realizar tests a cualquier atleta
+        // Se removió la verificación de pertenencia para permitir evaluaciones flexibles
 
         // Obtener datos del atleta
         $atleta = Atleta::buscarPorId($atleta_id);
@@ -395,11 +389,8 @@ class EvaluacionController
         require_once __DIR__ . '/../models/Evaluacion.php';
         require_once __DIR__ . '/../models/ResultadoTest.php';
 
-        // Verificar que el atleta pertenezca al evaluador
-        if (!Atleta::verificarPertenenciaEvaluador($atleta_id, $_SESSION['usuario_id'])) {
-            echo json_encode(['success' => false, 'error' => 'Atleta no autorizado']);
-            exit;
-        }
+        // PERMISOS AMPLIOS: Cualquier evaluador puede guardar tests de cualquier atleta
+        // Se removió la verificación de pertenencia para permitir evaluaciones flexibles
 
         // Crear evaluación si no existe
         if (!$evaluacion_id || $evaluacion_id === 'null') {

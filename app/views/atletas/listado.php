@@ -80,6 +80,7 @@
               echo 'No se especificó el atleta a ocultar.';
               break;
             case 'not_authorized':
+            case 'atleta_no_autorizado':
               echo 'No tienes permisos para realizar esta acción.';
               break;
             case 'not_found':

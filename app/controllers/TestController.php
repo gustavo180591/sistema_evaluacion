@@ -65,11 +65,8 @@ class TestController
             require_once __DIR__ . '/../models/Evaluacion.php';
             require_once __DIR__ . '/../models/Atleta.php';
             
-            // Verificar que el atleta pertenece al mismo establecimiento del evaluador
-            if (!Atleta::verificarPertenenciaEvaluador($_POST['atleta_id'], $_SESSION['usuario_id'])) {
-                header('Location: index.php?controller=Test&action=nuevaEvaluacion&error=atleta_no_autorizado');
-                exit;
-            }
+            // PERMISOS AMPLIOS: Cualquier evaluador puede crear evaluaciones para cualquier atleta
+            // Se removió la verificación de pertenencia para permitir evaluaciones flexibles
             
             // Verificar que el evaluador_id está en la sesión
             if (!isset($_SESSION['evaluador_id'])) {
@@ -156,11 +153,8 @@ class TestController
             require_once __DIR__ . '/../models/Atleta.php';
             require_once __DIR__ . '/../models/Evaluacion.php';
             
-            // Verificar que el atleta pertenece al mismo establecimiento del evaluador
-            if (!Atleta::verificarPertenenciaEvaluador($_POST['atleta_id'], $_SESSION['usuario_id'])) {
-                header('Location: index.php?controller=Test&action=evaluacion&id=' . $_POST['evaluacion_id'] . '&error=atleta_no_autorizado');
-                exit;
-            }
+            // PERMISOS AMPLIOS: Cualquier evaluador puede agregar tests a cualquier atleta
+            // Se removió la verificación de pertenencia para permitir evaluaciones flexibles
             
             // Verificar que la evaluación pertenece al evaluador actual
             $evaluacion = Evaluacion::porId($_POST['evaluacion_id']);

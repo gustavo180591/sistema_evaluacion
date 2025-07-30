@@ -206,31 +206,6 @@
           </div>
         </div>
 
-        <!-- Información Adicional -->
-        <div class="card mt-4 border-0" style="background: rgba(255,255,255,0.8); border-radius: 15px;">
-          <div class="card-body text-center" style="padding: 20px;">
-            <h6 style="color: #6c757d; margin-bottom: 15px;">
-              <i class="fas fa-info-circle"></i> Información Importante
-            </h6>
-            <div class="row">
-              <div class="col-md-4 mb-2">
-                <small style="color: #495057;">
-                  <i class="fas fa-clock text-primary"></i> <strong>Rápido:</strong> Registro individual
-                </small>
-              </div>
-              <div class="col-md-4 mb-2">
-                <small style="color: #495057;">
-                  <i class="fas fa-shield-alt text-success"></i> <strong>Seguro:</strong> Datos validados
-                </small>
-              </div>
-              <div class="col-md-4 mb-2">
-                <small style="color: #495057;">
-                  <i class="fas fa-chart-line text-info"></i> <strong>Tracking:</strong> Historial completo
-                </small>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
