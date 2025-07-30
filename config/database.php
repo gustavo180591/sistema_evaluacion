@@ -30,7 +30,13 @@ $options = [
     PDO::ATTR_PERSISTENT         => true,
 ];
 
-$dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
+// Use socket for local connections
+if ($host === 'localhost' || $host === '127.0.0.1') {
+    $dsn = "mysql:unix_socket=/var/run/mysqld/mysqld.sock;dbname=$db;charset=$charset";
+} else {
+    // For Docker environments, use TCP connection
+    $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
+}
 
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);

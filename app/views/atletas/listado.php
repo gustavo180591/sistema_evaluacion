@@ -91,7 +91,7 @@
                 <th scope="col">👤 Atleta</th>
                 <th scope="col">📅 Edad</th>
                 <th scope="col">⚧️ Sexo</th>
-                <th scope="col">🆔 DNI/RUT</th>
+                <th scope="col">🆔 DNI</th>
                 <th scope="col">📏 Medidas</th>
                 <th scope="col">🎯 Lateralidad</th>
                 <th scope="col" class="text-center" style="min-width: 220px;">⚙️ Acciones</th>

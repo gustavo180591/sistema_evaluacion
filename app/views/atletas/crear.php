@@ -79,12 +79,12 @@
             <div class="col-md-4">
               <div class="form-group">
                 <label for="dni" class="form-label">
-                  <strong>DNI/RUT *</strong>
+                  <strong>DNI *</strong>
                 </label>
                 <input type="text" name="dni" id="dni" class="form-control" 
                        required maxlength="20" placeholder="Ej: 12.345.678-9">
                 <div class="invalid-feedback">
-                  El DNI/RUT es obligatorio
+                  El DNI es obligatorio
                 </div>
               </div>
             </div>
@@ -386,11 +386,11 @@ function calcularMedidas() {
   document.getElementById(id).addEventListener('input', calcularMedidas);
 });
 
-// Validación del DNI/RUT (formato básico)
+// Validación del DNI (formato básico)
 document.getElementById('dni').addEventListener('blur', function() {
   const dni = this.value.trim();
   if (dni && dni.length < 7) {
-    this.setCustomValidity('El DNI/RUT debe tener al menos 7 caracteres');
+    this.setCustomValidity('El DNI debe tener al menos 7 caracteres');
   } else {
     this.setCustomValidity('');
   }

@@ -15,7 +15,7 @@
       <p>Administra la información de tus atletas asignados</p>
       <div class="mt-2">
         <a href="index.php?controller=Atleta&action=listado" class="btn btn-primary">Ver Atletas</a>
-        <a href="index.php?controller=Atleta&action=crear" class="btn btn-success btn-sm">+ Nuevo</a>
+        <a href="index.php?controller=Atleta&action=crear" class="btn btn-success">+ Nuevo</a>
       </div>
     </div>
 
@@ -56,7 +56,7 @@
       <p>Visualiza estadísticas y progreso de atletas</p>
       <div class="mt-2">
         <a href="index.php?controller=Reporte&action=estadisticas" class="btn btn-primary">Estadísticas</a>
-        <a href="index.php?controller=Reporte&action=exportar" class="btn btn-success btn-sm">Exportar</a>
+        <a href="index.php?controller=Reporte&action=exportar" class="btn btn-success">Exportar</a>
       </div>
     </div>
 
