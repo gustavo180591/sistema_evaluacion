@@ -78,10 +78,7 @@
     
     <div class="card">
       <div class="card-header" style="background: linear-gradient(135deg, var(--color-azul) 0%, #0056b3 100%); color: white;">
-        <h5 class="mb-0">
-          <i class="fas fa-list"></i> Listado de Atletas 
-          <span class="badge badge-light text-dark ml-2"><?php echo count($atletas); ?> atletas</span>
-        </h5>
+        
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">
