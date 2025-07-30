@@ -43,7 +43,7 @@ class ExcelExporter
         $sheet1->setTitle('Información Atleta');
         
         $sheet1->setCellValue('A1', 'INFORMACIÓN DEL ATLETA');
-        $sheet1->setCellValue('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet1->getCell('A1')->getFont()->setBold(true)->setSize(14);
         
         $sheet1->setCellValue('A3', 'Nombre Completo:');
         $sheet1->setCellValue('B3', $atleta['nombre'] . ' ' . $atleta['apellido']);
@@ -73,7 +73,7 @@ class ExcelExporter
         
         // Resumen de tests
         $sheet1->setCellValue('A12', 'RESUMEN DE TESTS');
-        $sheet1->setCellValue('A12')->getFont()->setBold(true)->setSize(12);
+        $sheet1->getCell('A12')->getFont()->setBold(true)->setSize(12);
         
         $sheet1->setCellValue('A14', 'Total de tests realizados:');
         $sheet1->setCellValue('B14', count($resultados));
@@ -83,6 +83,16 @@ class ExcelExporter
         
         $sheet1->setCellValue('A16', 'Lugares de evaluación:');
         $sheet1->setCellValue('B16', count(array_unique(array_column($resultados, 'lugar_id'))));
+        
+        // Formatear encabezados de información básica
+        foreach (['A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A14', 'A15', 'A16'] as $cell) {
+            $sheet1->getCell($cell)->getFont()->setBold(true);
+        }
+        
+        // Autoajustar columnas de la primera hoja
+        foreach (range('A', 'B') as $col) {
+            $sheet1->getColumnDimension($col)->setAutoSize(true);
+        }
         
         // Hoja 2: Lista de Tests
         $sheet2 = $spreadsheet->createSheet();

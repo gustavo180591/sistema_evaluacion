@@ -11,7 +11,7 @@ class AtletaController
         }
 
         require_once __DIR__ . '/../models/Atleta.php';
-        $atletas = Atleta::todosPorEvaluador($_SESSION['usuario_id']);
+        $atletas = Atleta::todos();
 
         require_once __DIR__ . '/../views/atletas/listado.php';
     }
@@ -315,11 +315,8 @@ class AtletaController
 
         require_once __DIR__ . '/../models/Atleta.php';
 
-        // Verificar que el atleta pertenezca al evaluador
-        if (!Atleta::verificarPertenenciaEvaluador($id, $_SESSION['usuario_id'])) {
-            header('Location: index.php?controller=Atleta&action=listado&error=not_authorized');
-            exit;
-        }
+        // NUEVO: Cualquier evaluador puede ocultar cualquier atleta
+        // Se removió la verificación de pertenencia para permitir permisos amplios
 
         // Obtener el nombre del atleta antes de eliminarlo (para el mensaje de confirmación)
         $atleta = Atleta::buscarPorId($id);
@@ -328,13 +325,13 @@ class AtletaController
             exit;
         }
 
-        // Intentar eliminar el atleta
-        $resultado = Atleta::eliminar($id);
+        // Intentar ocultar el atleta (eliminación suave)
+        $resultado = Atleta::ocultar($id);
         
         if ($resultado) {
-            header('Location: index.php?controller=Atleta&action=listado&success=deleted&nombre=' . urlencode($atleta['nombre'] . ' ' . $atleta['apellido']));
+            header('Location: index.php?controller=Atleta&action=listado&success=hidden&nombre=' . urlencode($atleta['nombre'] . ' ' . $atleta['apellido']));
         } else {
-            header('Location: index.php?controller=Atleta&action=listado&error=delete_failed');
+            header('Location: index.php?controller=Atleta&action=listado&error=hide_failed');
         }
         exit;
     }

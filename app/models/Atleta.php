@@ -20,13 +20,60 @@ class Atleta
         
         $evaluador_id = $evaluador['evaluador_id'];
         
-        // Obtener todos los atletas de este evaluador
-        $stmt = $pdo->prepare("SELECT a.*, l.nombre as lugar_nombre 
-            FROM atletas a 
-            LEFT JOIN lugares l ON a.lugar_id = l.id 
-            WHERE a.evaluador_id = ? 
-            ORDER BY a.apellido, a.nombre");
+        // Verificar si el campo activo existe
+        $checkStmt = $pdo->query("SHOW COLUMNS FROM atletas LIKE 'activo'");
+        $campoActivoExiste = $checkStmt->rowCount() > 0;
+        
+        if ($campoActivoExiste) {
+            // Obtener todos los atletas activos de este evaluador
+            $stmt = $pdo->prepare("SELECT a.*, l.nombre as lugar_nombre 
+                FROM atletas a 
+                LEFT JOIN lugares l ON a.lugar_id = l.id 
+                WHERE a.evaluador_id = ? AND a.activo = TRUE
+                ORDER BY a.apellido, a.nombre");
+        } else {
+            // Si no existe el campo activo, obtener todos los atletas de este evaluador
+            $stmt = $pdo->prepare("SELECT a.*, l.nombre as lugar_nombre 
+                FROM atletas a 
+                LEFT JOIN lugares l ON a.lugar_id = l.id 
+                WHERE a.evaluador_id = ?
+                ORDER BY a.apellido, a.nombre");
+        }
+        
         $stmt->execute([$evaluador_id]);
+        return $stmt->fetchAll();
+    }
+
+    public static function todos()
+    {
+        global $pdo;
+        
+        // Verificar si el campo activo existe
+        $stmt = $pdo->query("SHOW COLUMNS FROM atletas LIKE 'activo'");
+        $campoActivoExiste = $stmt->rowCount() > 0;
+        
+        if ($campoActivoExiste) {
+            // Obtener todos los atletas activos del sistema con información del evaluador y lugar
+            $stmt = $pdo->prepare("SELECT a.*, l.nombre as lugar_nombre, 
+                                         CONCAT(e.nombre, ' ', e.apellido) as evaluador_nombre,
+                                         e.email as evaluador_email
+                                  FROM atletas a 
+                                  LEFT JOIN lugares l ON a.lugar_id = l.id 
+                                  LEFT JOIN evaluadores e ON a.evaluador_id = e.id
+                                  WHERE a.activo = TRUE
+                                  ORDER BY a.apellido, a.nombre");
+        } else {
+            // Si no existe el campo activo, obtener todos los atletas
+            $stmt = $pdo->prepare("SELECT a.*, l.nombre as lugar_nombre, 
+                                         CONCAT(e.nombre, ' ', e.apellido) as evaluador_nombre,
+                                         e.email as evaluador_email
+                                  FROM atletas a 
+                                  LEFT JOIN lugares l ON a.lugar_id = l.id 
+                                  LEFT JOIN evaluadores e ON a.evaluador_id = e.id
+                                  ORDER BY a.apellido, a.nombre");
+        }
+        
+        $stmt->execute();
         return $stmt->fetchAll();
     }
 
@@ -53,11 +100,23 @@ class Atleta
         // En el futuro se puede mejorar para que el evaluador tenga un lugar asignado
         $lugar_id = 1;
         
-        $stmt = $pdo->prepare("INSERT INTO atletas (
-            evaluador_id, lugar_id, nombre, apellido, dni, sexo, fecha_nacimiento,
-            altura_cm, peso_kg, envergadura_cm, altura_sentado_cm,
-            lateralidad_visual, lateralidad_podal, discapacidad_id, fecha_registro
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+        // Verificar si el campo activo existe
+        $checkStmt = $pdo->query("SHOW COLUMNS FROM atletas LIKE 'activo'");
+        $campoActivoExiste = $checkStmt->rowCount() > 0;
+        
+        if ($campoActivoExiste) {
+            $stmt = $pdo->prepare("INSERT INTO atletas (
+                evaluador_id, lugar_id, nombre, apellido, dni, sexo, fecha_nacimiento,
+                altura_cm, peso_kg, envergadura_cm, altura_sentado_cm,
+                lateralidad_visual, lateralidad_podal, discapacidad_id, fecha_registro, activo
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), TRUE)");
+        } else {
+            $stmt = $pdo->prepare("INSERT INTO atletas (
+                evaluador_id, lugar_id, nombre, apellido, dni, sexo, fecha_nacimiento,
+                altura_cm, peso_kg, envergadura_cm, altura_sentado_cm,
+                lateralidad_visual, lateralidad_podal, discapacidad_id, fecha_registro
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+        }
 
         return $stmt->execute([
             $evaluador_id,
@@ -110,11 +169,25 @@ class Atleta
     public static function buscarPorId($id)
     {
         global $pdo;
-        $stmt = $pdo->prepare("SELECT a.*, l.nombre as lugar_nombre, d.nombre as discapacidad_nombre, d.tipo as discapacidad_tipo 
-            FROM atletas a 
-            LEFT JOIN lugares l ON a.lugar_id = l.id 
-            LEFT JOIN discapacidades d ON a.discapacidad_id = d.id 
-            WHERE a.id = ? LIMIT 1");
+        
+        // Verificar si el campo activo existe
+        $checkStmt = $pdo->query("SHOW COLUMNS FROM atletas LIKE 'activo'");
+        $campoActivoExiste = $checkStmt->rowCount() > 0;
+        
+        if ($campoActivoExiste) {
+            $stmt = $pdo->prepare("SELECT a.*, l.nombre as lugar_nombre, d.nombre as discapacidad_nombre, d.tipo as discapacidad_tipo 
+                FROM atletas a 
+                LEFT JOIN lugares l ON a.lugar_id = l.id 
+                LEFT JOIN discapacidades d ON a.discapacidad_id = d.id 
+                WHERE a.id = ? AND a.activo = TRUE LIMIT 1");
+        } else {
+            $stmt = $pdo->prepare("SELECT a.*, l.nombre as lugar_nombre, d.nombre as discapacidad_nombre, d.tipo as discapacidad_tipo 
+                FROM atletas a 
+                LEFT JOIN lugares l ON a.lugar_id = l.id 
+                LEFT JOIN discapacidades d ON a.discapacidad_id = d.id 
+                WHERE a.id = ? LIMIT 1");
+        }
+        
         $stmt->execute([$id]);
         return $stmt->fetch();
     }
@@ -122,7 +195,17 @@ class Atleta
     public static function contar()
     {
         global $pdo;
-        $stmt = $pdo->query("SELECT COUNT(*) as total FROM atletas");
+        
+        // Verificar si el campo activo existe
+        $checkStmt = $pdo->query("SHOW COLUMNS FROM atletas LIKE 'activo'");
+        $campoActivoExiste = $checkStmt->rowCount() > 0;
+        
+        if ($campoActivoExiste) {
+            $stmt = $pdo->query("SELECT COUNT(*) as total FROM atletas WHERE activo = TRUE");
+        } else {
+            $stmt = $pdo->query("SELECT COUNT(*) as total FROM atletas");
+        }
+        
         return $stmt->fetchColumn();
     }
 
@@ -150,40 +233,82 @@ class Atleta
         return $stmt->fetchColumn() > 0;
     }
 
-    public static function eliminar($id)
+    public static function ocultar($id)
     {
         global $pdo;
         
         try {
-            // Iniciar transacción para asegurar consistencia
-            $pdo->beginTransaction();
+            // Verificar si el campo activo existe
+            $checkStmt = $pdo->query("SHOW COLUMNS FROM atletas LIKE 'activo'");
+            $campoActivoExiste = $checkStmt->rowCount() > 0;
             
-            // Eliminar todos los resultados de tests del atleta
-            $stmt = $pdo->prepare("DELETE FROM resultados_tests WHERE atleta_id = ?");
-            $stmt->execute([$id]);
-            
-            // Si existe tabla de evaluaciones, eliminar las evaluaciones del atleta
-            $stmt = $pdo->prepare("SHOW TABLES LIKE 'evaluaciones'");
-            $stmt->execute();
-            if ($stmt->rowCount() > 0) {
-                $stmt = $pdo->prepare("DELETE FROM evaluaciones WHERE atleta_id = ?");
-                $stmt->execute([$id]);
+            if ($campoActivoExiste) {
+                // Marcar el atleta como inactivo (eliminación suave)
+                $stmt = $pdo->prepare("UPDATE atletas SET activo = FALSE WHERE id = ?");
+                $resultado = $stmt->execute([$id]);
+                
+                return $resultado && $stmt->rowCount() > 0;
+            } else {
+                // Si no existe el campo activo, no hacer nada por ahora
+                error_log("Intento de ocultar atleta pero el campo 'activo' no existe. Ejecute la migración primero.");
+                return false;
             }
             
-            // Finalmente, eliminar el atleta
-            $stmt = $pdo->prepare("DELETE FROM atletas WHERE id = ?");
-            $resultado = $stmt->execute([$id]);
+        } catch (Exception $e) {
+            error_log("Error al ocultar atleta: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    // Método para restaurar un atleta oculto (por si acaso se necesita)
+    public static function restaurar($id)
+    {
+        global $pdo;
+        
+        try {
+            // Verificar si el campo activo existe
+            $checkStmt = $pdo->query("SHOW COLUMNS FROM atletas LIKE 'activo'");
+            $campoActivoExiste = $checkStmt->rowCount() > 0;
             
-            // Confirmar la transacción
-            $pdo->commit();
-            
-            return $resultado && $stmt->rowCount() > 0;
+            if ($campoActivoExiste) {
+                $stmt = $pdo->prepare("UPDATE atletas SET activo = TRUE WHERE id = ?");
+                $resultado = $stmt->execute([$id]);
+                
+                return $resultado && $stmt->rowCount() > 0;
+            } else {
+                error_log("Intento de restaurar atleta pero el campo 'activo' no existe. Ejecute la migración primero.");
+                return false;
+            }
             
         } catch (Exception $e) {
-            // En caso de error, revertir la transacción
-            $pdo->rollback();
-            error_log("Error al eliminar atleta: " . $e->getMessage());
+            error_log("Error al restaurar atleta: " . $e->getMessage());
             return false;
+        }
+    }
+
+    // Método para obtener atletas ocultos (para administradores)
+    public static function obtenerOcultos()
+    {
+        global $pdo;
+        
+        // Verificar si el campo activo existe
+        $checkStmt = $pdo->query("SHOW COLUMNS FROM atletas LIKE 'activo'");
+        $campoActivoExiste = $checkStmt->rowCount() > 0;
+        
+        if ($campoActivoExiste) {
+            $stmt = $pdo->prepare("SELECT a.*, l.nombre as lugar_nombre, 
+                                         CONCAT(e.nombre, ' ', e.apellido) as evaluador_nombre,
+                                         e.email as evaluador_email
+                                  FROM atletas a 
+                                  LEFT JOIN lugares l ON a.lugar_id = l.id 
+                                  LEFT JOIN evaluadores e ON a.evaluador_id = e.id
+                                  WHERE a.activo = FALSE
+                                  ORDER BY a.apellido, a.nombre");
+            $stmt->execute();
+            return $stmt->fetchAll();
+        } else {
+            // Si no existe el campo activo, retornar array vacío
+            return [];
         }
     }
 }

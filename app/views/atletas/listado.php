@@ -4,17 +4,37 @@
 <div class="container">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h2>👥 Mis Atletas</h2>
-      <p class="text-muted">Gestiona los atletas registrados en tu establecimiento</p>
+      <h2>👥 Todos los Atletas</h2>
+      <p class="text-muted">Listado completo de atletas registrados en el sistema</p>
+      
+      <?php 
+      // Verificar si se necesita ejecutar migración
+      global $pdo;
+      $stmt = $pdo->query("SHOW COLUMNS FROM atletas LIKE 'activo'");
+      $campoActivoExiste = $stmt->rowCount() > 0;
+      
+      if (!$campoActivoExiste): ?>
+        <div class="alert alert-warning mt-2">
+          <strong><i class="fas fa-exclamation-triangle"></i> Migración Pendiente:</strong> 
+          Para habilitar la función de ocultar atletas, ejecute la migración: 
+          <a href="ejecutar_migracion_web.php" target="_blank" class="btn btn-sm btn-warning ms-2">
+            <i class="fas fa-database"></i> Ejecutar Migración
+          </a>
+        </div>
+      <?php endif; ?>
+      
       <div class="mt-3">
         <a href="index.php?controller=Atleta&action=adaptados" class="btn btn-primary">
           <i class="fas fa-wheelchair"></i> Ver Atletas Adaptados
         </a>
       </div>
     </div>
-    <div>
+    <div class="d-flex gap-2">
+      <a href="index.php?controller=Dashboard&action=index" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+      </a>
       <a href="index.php?controller=Atleta&action=crear" class="btn btn-success">
-        <i class="fas fa-plus"></i> Nuevo Atleta
+        <i class="fas fa-plus me-1"></i> Nuevo Atleta
       </a>
     </div>
   </div>
@@ -26,7 +46,7 @@
           <i class="fas fa-users fa-3x text-muted"></i>
         </div>
         <h4 class="text-muted">No hay atletas registrados</h4>
-        <p class="text-muted">Comienza registrando tu primer atleta</p>
+        <p class="text-muted">No hay atletas registrados en el sistema</p>
         <a href="index.php?controller=Atleta&action=crear" class="btn btn-primary">
           <i class="fas fa-plus"></i> Registrar Primer Atleta
         </a>
@@ -35,8 +55,10 @@
   <?php else: ?>
     <?php if (isset($_GET['success'])): ?>
       <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <?php if ($_GET['success'] === 'deleted' && isset($_GET['nombre'])): ?>
-          <strong>✅ Éxito:</strong> El atleta "<?php echo htmlspecialchars(urldecode($_GET['nombre'])); ?>" ha sido eliminado correctamente junto con todos sus datos.
+        <?php if ($_GET['success'] === 'hidden' && isset($_GET['nombre'])): ?>
+          <strong>✅ Éxito:</strong> El atleta "<?php echo htmlspecialchars(urldecode($_GET['nombre'])); ?>" ha sido ocultado correctamente y ya no aparece en el listado.
+        <?php elseif ($_GET['success'] === 'deleted' && isset($_GET['nombre'])): ?>
+          <strong>✅ Éxito:</strong> El atleta "<?php echo htmlspecialchars(urldecode($_GET['nombre'])); ?>" ha sido ocultado correctamente.
         <?php else: ?>
           <strong>✅ Éxito:</strong> El atleta ha sido creado correctamente.
         <?php endif; ?>
@@ -52,19 +74,20 @@
         <?php 
           switch($_GET['error']) {
             case 'invalid_request':
-              echo 'Petición inválida. La eliminación debe confirmarse correctamente.';
+              echo 'Petición inválida. La acción debe confirmarse correctamente.';
               break;
             case 'missing_id':
-              echo 'No se especificó el atleta a eliminar.';
+              echo 'No se especificó el atleta a ocultar.';
               break;
             case 'not_authorized':
-              echo 'No tienes permisos para eliminar este atleta.';
+              echo 'No tienes permisos para realizar esta acción.';
               break;
             case 'not_found':
               echo 'El atleta especificado no existe.';
               break;
             case 'delete_failed':
-              echo 'No se pudo eliminar el atleta. Inténtalo nuevamente.';
+            case 'hide_failed':
+              echo 'No se pudo ocultar el atleta. Inténtalo nuevamente.';
               break;
             default:
               echo 'Ha ocurrido un error inesperado.';
@@ -90,6 +113,7 @@
                 <th scope="col">⚧️ Sexo</th>
                 <th scope="col">🆔 DNI</th>
                 <th scope="col">📏 Medidas</th>
+                <th scope="col">👨‍💼 Evaluador</th>
                 <th scope="col">🎯 Lateralidad</th>
                 <th scope="col" class="text-center" style="min-width: 220px;">⚙️ Acciones</th>
               </tr>
@@ -154,6 +178,16 @@
                   </td>
                   <td>
                     <small class="text-muted">
+                      <?php if (!empty($a['evaluador_nombre'])): ?>
+                        <strong><?php echo htmlspecialchars($a['evaluador_nombre']); ?></strong><br>
+                        <span class="text-muted"><?php echo htmlspecialchars($a['evaluador_email']); ?></span>
+                      <?php else: ?>
+                        <span class="text-warning">Sin evaluador asignado</span>
+                      <?php endif; ?>
+                    </small>
+                  </td>
+                  <td>
+                    <small class="text-muted">
                       <strong>👁️ Visual:</strong> <?php echo htmlspecialchars($a['lateralidad_visual']); ?><br>
                       <strong>🦶 Podal:</strong> <?php echo htmlspecialchars($a['lateralidad_podal']); ?>
                     </small>
@@ -172,11 +206,17 @@
                          class="btn btn-warning btn-sm mb-1" title="Editar Atleta">
                         <i class="fas fa-edit"></i> Editar
                       </a>
-                      <button type="button" class="btn btn-danger btn-sm mb-1" 
-                              title="Eliminar Atleta"
-                              onclick="confirmarEliminacion(<?php echo $a['id']; ?>, '<?php echo htmlspecialchars($a['nombre'] . ' ' . $a['apellido']); ?>')">
-                        <i class="fas fa-trash"></i> Eliminar
-                      </button>
+                      <?php if ($campoActivoExiste): ?>
+                        <button type="button" class="btn btn-warning btn-sm mb-1" 
+                                title="Ocultar Atleta"
+                                onclick="confirmarOcultacion(<?php echo $a['id']; ?>, '<?php echo htmlspecialchars($a['nombre'] . ' ' . $a['apellido']); ?>')">
+                          <i class="fas fa-eye-slash"></i> Ocultar
+                        </button>
+                      <?php else: ?>
+                        <span class="btn btn-secondary btn-sm mb-1 disabled" title="Ejecute la migración para habilitar">
+                          <i class="fas fa-database"></i> Migración Requerida
+                        </span>
+                      <?php endif; ?>
                     </div>
                   </td>
                 </tr>
@@ -245,6 +285,11 @@
   color: #212529;
 }
 
+.btn-group .btn-warning:hover {
+  background-color: #e0a800;
+  border-color: #d39e00;
+}
+
 .btn-group .btn-danger {
   background-color: #dc3545;
   border-color: #dc3545;
@@ -296,9 +341,9 @@ th:last-child, td:last-child {
 </style>
 
 <script>
-function confirmarEliminacion(atletaId, nombreAtleta) {
-  if (confirm('⚠️ ¿Estás seguro de que deseas eliminar al atleta "' + nombreAtleta + '"?\n\nEsta acción eliminará también:\n• Todos sus resultados de tests\n• Su historial de evaluaciones\n• Todos los datos asociados\n\n⚠️ ESTA ACCIÓN NO SE PUEDE DESHACER')) {
-    // Crear un formulario dinámico para enviar la petición DELETE
+function confirmarOcultacion(atletaId, nombreAtleta) {
+  if (confirm('👁️ ¿Estás seguro de que deseas ocultar al atleta "' + nombreAtleta + '"?\n\n🔍 Esta acción:\n• Ocultará al atleta del listado principal\n• Conservará todos sus datos y historial\n• Puede ser revertida si es necesario\n\n✅ Sus datos permanecerán seguros en el sistema')) {
+    // Crear un formulario dinámico para enviar la petición
     var form = document.createElement('form');
     form.method = 'POST';
     form.action = 'index.php?controller=Atleta&action=eliminar';
@@ -342,8 +387,10 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.setAttribute('title', '✅ Nueva Evaluación - Crear evaluación completa');
       } else if (btn.classList.contains('btn-primary')) {
         btn.setAttribute('title', '📊 Ver Historial - Resultados anteriores');
-      } else if (btn.classList.contains('btn-warning')) {
+      } else if (btn.classList.contains('btn-warning') && btn.textContent.includes('Editar')) {
         btn.setAttribute('title', '✏️ Editar Atleta - Modificar datos');
+      } else if (btn.classList.contains('btn-warning') && btn.textContent.includes('Ocultar')) {
+        btn.setAttribute('title', '👁️ Ocultar Atleta - Remover del listado');
       } else if (btn.classList.contains('btn-danger')) {
         btn.setAttribute('title', '🗑️ Eliminar - Borrar permanentemente');
       }
