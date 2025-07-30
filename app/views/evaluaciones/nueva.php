@@ -18,34 +18,27 @@
                     <?php endif; ?>
 
                     <form method="POST" class="needs-validation" novalidate>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="fecha_evaluacion">
-                                        <i class="fas fa-calendar"></i> Fecha de Evaluación *
-                                    </label>
-                                    <input type="date" 
-                                           class="form-control" 
-                                           id="fecha_evaluacion" 
-                                           name="fecha_evaluacion" 
-                                           value="<?php echo date('Y-m-d'); ?>" 
-                                           required>
-                                    <div class="invalid-feedback">
-                                        Por favor, selecciona una fecha válida.
-                                    </div>
-                                </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="fecha_evaluacion">
+                                    <i class="fas fa-calendar"></i> Fecha de Evaluación *
+                                </label>
+                                <input type="date" 
+                                       class="form-control" 
+                                       id="fecha_evaluacion" 
+                                       name="fecha_evaluacion" 
+                                       value="<?php echo date('Y-m-d'); ?>" 
+                                       required>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="hora_inicio">
-                                        <i class="fas fa-clock"></i> Hora de Inicio
-                                    </label>
-                                    <input type="time" 
-                                           class="form-control" 
-                                           id="hora_inicio" 
-                                           name="hora_inicio" 
-                                           value="<?php echo date('H:i'); ?>">
-                                </div>
+                            <div class="form-group col-md-6">
+                                <label for="hora_inicio">
+                                    <i class="fas fa-clock"></i> Hora de Inicio
+                                </label>
+                                <input type="time" 
+                                       class="form-control" 
+                                       id="hora_inicio" 
+                                       name="hora_inicio" 
+                                       value="<?php echo date('H:i'); ?>">
                             </div>
                         </div>
 
@@ -117,7 +110,48 @@
                                       placeholder="Observaciones sobre el estado del atleta, condiciones especiales, etc."></textarea>
                         </div>
 
-                        <div class="form-group text-center">
+                        <!-- Sección de Tests Disponibles -->
+                        <div class="form-group">
+                            <label class="d-block mb-3">
+                                <i class="fas fa-clipboard-list text-success"></i> Tests Disponibles
+                                <small class="text-muted">Selecciona un test para comenzar</small>
+                            </label>
+                            
+                            <div class="tests-container">
+                                <?php if (!empty($tests)): ?>
+                                    <?php foreach ($tests as $categoria => $testList): ?>
+                                        <div class="test-category mb-4">
+                                            <h6 class="category-title">
+                                                <i class="fas fa-folder-open text-muted mr-2"></i>
+                                                <?php echo ucfirst($categoria); ?>
+                                            </h6>
+                                            <div class="test-list">
+                                                <?php foreach ($testList as $test): ?>
+                                                    <a href="<?php echo $test['url']; ?>" class="test-item">
+                                                        <div class="test-icon">
+                                                            <i class="fas fa-<?php echo $test['icono']; ?>"></i>
+                                                        </div>
+                                                        <div class="test-details">
+                                                            <div class="test-name"><?php echo $test['nombre']; ?></div>
+                                                            <div class="test-desc"><?php echo $test['descripcion']; ?></div>
+                                                        </div>
+                                                        <div class="test-arrow">
+                                                            <i class="fas fa-chevron-right"></i>
+                                                        </div>
+                                                    </a>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle"></i> No hay tests disponibles en este momento.
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
+                        <div class="form-group text-center mt-4">
                             <button type="submit" class="btn btn-success btn-lg">
                                 <i class="fas fa-play-circle"></i> Iniciar Evaluación
                             </button>
@@ -126,6 +160,7 @@
                             </a>
                         </div>
                     </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -145,6 +180,97 @@
 .form-control:focus {
     border-color: #28a745;
     box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+/* Estilos para la lista de tests */
+.tests-container {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
+}
+
+.test-category {
+    padding: 0 1rem;
+}
+
+.test-category:not(:last-child) {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.category-title {
+    color: #495057;
+    font-weight: 600;
+    padding: 1rem 0 0.5rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.test-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-bottom: 1rem;
+}
+
+.test-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    background: #f8f9fa;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.test-item:hover {
+    background: #fff;
+    border-color: #28a745;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transform: translateY(-1px);
+    text-decoration: none;
+    color: #333;
+}
+
+.test-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #e9f5ee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: #28a745;
+    flex-shrink: 0;
+}
+
+.test-details {
+    flex-grow: 1;
+}
+
+.test-name {
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.test-desc {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.test-arrow {
+    color: #adb5bd;
+    padding-left: 0.5rem;
+    transition: transform 0.2s ease;
+}
+
+.test-item:hover .test-arrow {
+    transform: translateX(3px);
+    color: #28a745;
 }
 
 .btn-success {

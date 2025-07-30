@@ -34,6 +34,76 @@ class EvaluacionController
 
         // Obtener lugares disponibles
         $lugares = Lugar::todos();
+        
+        // Lista de tests disponibles organizados por categoría
+        $tests = [
+            'antropometría' => [
+                [
+                    'id' => 'talla_sentado',
+                    'nombre' => 'Talla Sentado',
+                    'descripcion' => 'Mide la altura del tronco en posición sentada',
+                    'icono' => 'ruler-vertical'
+                ],
+                [
+                    'id' => 'envergadura',
+                    'nombre' => 'Envergadura',
+                    'descripcion' => 'Mide la distancia entre las puntas de los dedos con brazos extendidos',
+                    'icono' => 'arrows-alt-h'
+                ]
+            ],
+            'fuerza' => [
+                [
+                    'id' => 'fuerza_prensa',
+                    'nombre' => 'Fuerza en Prensa',
+                    'descripcion' => 'Evalúa la fuerza máxima en piernas',
+                    'icono' => 'dumbbell'
+                ],
+                [
+                    'id' => 'salto_vertical',
+                    'nombre' => 'Salto Vertical',
+                    'descripcion' => 'Mide la potencia de salto vertical',
+                    'icono' => 'arrow-up'
+                ]
+            ],
+            'resistencia' => [
+                [
+                    'id' => 'test_cooper',
+                    'nombre' => 'Test de Cooper',
+                    'descripcion' => 'Evalúa la resistencia aeróbica',
+                    'icono' => 'running'
+                ],
+                [
+                    'id' => 'course_navette',
+                    'nombre' => 'Course Navette',
+                    'descripcion' => 'Test de resistencia progresiva',
+                    'icono' => 'exchange-alt'
+                ]
+            ],
+            'flexibilidad' => [
+                [
+                    'id' => 'sit_and_reach',
+                    'nombre' => 'Sit and Reach',
+                    'descripcion' => 'Evalúa la flexibilidad de la cadena posterior',
+                    'icono' => 'hands-helping'
+                ]
+            ],
+            'velocidad' => [
+                [
+                    'id' => 'velocidad_30m',
+                    'nombre' => 'Velocidad 30m',
+                    'descripcion' => 'Mide la velocidad en 30 metros',
+                    'icono' => 'tachometer-alt'
+                ]
+            ]
+        ];
+
+        // Agregar la URL a cada test
+        foreach ($tests as $categoria => $testList) {
+            foreach ($testList as $key => $test) {
+                $tests[$categoria][$key]['url'] = 'index.php?controller=Test&action=realizar&test=' . 
+                                                $test['id'] . '&evaluacion_id=NEW&atleta_id=' . $atleta_id;
+            }
+        }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Asegurar que evaluador_id esté presente en sesión

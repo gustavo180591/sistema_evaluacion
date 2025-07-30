@@ -21,10 +21,12 @@ class ResultadoTest
     public static function porAtleta($atleta_id)
     {
         global $pdo;
-        $stmt = $pdo->prepare("SELECT r.*, t.nombre_test, l.nombre AS lugar
+        $stmt = $pdo->prepare("SELECT r.*, t.nombre_test, t.descripcion, l.nombre AS lugar, 
+                                     CONCAT(u.nombre, ' ', u.apellido) AS evaluador_nombre
             FROM resultados_tests r
             JOIN tests t ON r.test_id = t.id
             JOIN lugares l ON r.lugar_id = l.id
+            LEFT JOIN usuarios u ON r.evaluador_id = u.id
             WHERE r.atleta_id = ?
             ORDER BY r.fecha_test DESC");
         $stmt->execute([$atleta_id]);
@@ -55,5 +57,21 @@ class ResultadoTest
         global $pdo;
         $stmt = $pdo->query("SELECT COUNT(*) as total FROM resultados_tests");
         return $stmt->fetchColumn();
+    }
+
+    public static function buscarPorId($id)
+    {
+        global $pdo;
+        $stmt = $pdo->prepare("SELECT r.*, t.nombre_test, t.descripcion, l.nombre AS lugar, 
+                                     CONCAT(u.nombre, ' ', u.apellido) AS evaluador_nombre,
+                                     CONCAT(a.nombre, ' ', a.apellido) AS atleta_nombre
+            FROM resultados_tests r
+            JOIN tests t ON r.test_id = t.id
+            JOIN lugares l ON r.lugar_id = l.id
+            LEFT JOIN usuarios u ON r.evaluador_id = u.id
+            JOIN atletas a ON r.atleta_id = a.id
+            WHERE r.id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch();
     }
 }

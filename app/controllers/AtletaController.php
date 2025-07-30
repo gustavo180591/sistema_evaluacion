@@ -136,8 +136,18 @@ class AtletaController
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Obtener los datos actuales del atleta
+            $atletaActual = Atleta::buscarPorId($id);
+            
+            // Combinar los datos del formulario con los datos actuales
+            $datosActualizados = array_merge([
+                'evaluador_id' => $atletaActual['evaluador_id'],
+                'lugar_id' => $atletaActual['lugar_id'],
+                'discapacidad_id' => $atletaActual['discapacidad_id']
+            ], $_POST);
+            
             // Actualizar los datos del atleta
-            $resultado = Atleta::actualizar($id, $_POST);
+            $resultado = Atleta::actualizar($id, $datosActualizados);
             if ($resultado) {
                 header('Location: index.php?controller=Atleta&action=listado&success=1');
             } else {
@@ -177,6 +187,93 @@ class AtletaController
         $resultados = ResultadoTest::porAtleta($id);
 
         require_once __DIR__ . '/../views/atletas/historial.php';
+    }
+
+    public function exportarHistorialPDF()
+    {
+        // session_start() ya se ejecuta en index.php
+        if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] !== 'evaluador') {
+            header('Location: index.php?controller=Dashboard&action=index');
+            exit;
+        }
+
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            header('Location: index.php?controller=Atleta&action=listado');
+            exit;
+        }
+
+        require_once __DIR__ . '/../models/Atleta.php';
+        require_once __DIR__ . '/../models/ResultadoTest.php';
+        require_once __DIR__ . '/../utils/PDFGenerator.php';
+
+        $atleta = Atleta::buscarPorId($id);
+        $resultados = ResultadoTest::porAtleta($id);
+
+        if (!$atleta) {
+            header('Location: index.php?controller=Atleta&action=listado');
+            exit;
+        }
+
+        $pdfGenerator = new PDFGenerator();
+        $pdfGenerator->generarHistorialAtleta($atleta, $resultados);
+    }
+
+    public function exportarHistorialExcel()
+    {
+        // session_start() ya se ejecuta en index.php
+        if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] !== 'evaluador') {
+            header('Location: index.php?controller=Dashboard&action=index');
+            exit;
+        }
+
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            header('Location: index.php?controller=Atleta&action=listado');
+            exit;
+        }
+
+        require_once __DIR__ . '/../models/Atleta.php';
+        require_once __DIR__ . '/../models/ResultadoTest.php';
+        require_once __DIR__ . '/../utils/ExcelExporter.php';
+
+        $atleta = Atleta::buscarPorId($id);
+        $resultados = ResultadoTest::porAtleta($id);
+
+        if (!$atleta) {
+            header('Location: index.php?controller=Atleta&action=listado');
+            exit;
+        }
+
+        $excelExporter = new ExcelExporter();
+        $excelExporter->exportarHistorialAtleta($atleta, $resultados);
+    }
+
+    public function exportarTestPDF()
+    {
+        // session_start() ya se ejecuta en index.php
+        if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] !== 'evaluador') {
+            header('Location: index.php?controller=Dashboard&action=index');
+            exit;
+        }
+
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            header('Location: index.php?controller=Atleta&action=listado');
+            exit;
+        }
+
+        require_once __DIR__ . '/../models/ResultadoTest.php';
+        require_once __DIR__ . '/../utils/PDFGenerator.php';
+
+        $resultado = ResultadoTest::buscarPorId($id);
+        if (!$resultado) {
+            header('Location: index.php?controller=Atleta&action=listado');
+            exit;
+        }
+
+        $pdfGenerator = new PDFGenerator();
+        $pdfGenerator->generarTestIndividual($resultado);
     }
 
     public function adaptados()

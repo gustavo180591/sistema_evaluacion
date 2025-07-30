@@ -71,9 +71,16 @@ class TestController
                 exit;
             }
             
+            // Verificar que el evaluador_id está en la sesión
+            if (!isset($_SESSION['evaluador_id'])) {
+                $_SESSION['error'] = 'No se pudo identificar al evaluador. Por favor, inicie sesión nuevamente.';
+                header('Location: index.php?controller=Auth&action=login');
+                exit;
+            }
+
             $data = [
                 'atleta_id' => $_POST['atleta_id'],
-                'evaluador_id' => $_SESSION['usuario_id'],
+                'evaluador_id' => $_SESSION['evaluador_id'],
                 'lugar_id' => $_POST['lugar_id'],
                 'fecha_evaluacion' => $_POST['fecha_evaluacion'],
                 'hora_inicio' => $_POST['hora_inicio'] ?? null,

@@ -8,6 +8,9 @@ class Evaluacion
         $stmt = $pdo->prepare("INSERT INTO evaluaciones (atleta_id, evaluador_id, fecha_evaluacion, hora_inicio, estado, observaciones, clima, temperatura_ambiente)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
+        // Convert empty string to null for decimal fields
+        $temperatura = !empty($data['temperatura_ambiente']) ? (float)$data['temperatura_ambiente'] : null;
+
         $stmt->execute([
             $data['atleta_id'],
             $data['evaluador_id'],
@@ -16,7 +19,7 @@ class Evaluacion
             $data['estado'] ?? 'iniciada',
             $data['observaciones'] ?? null,
             $data['clima'] ?? null,
-            $data['temperatura_ambiente'] ?? null
+            $temperatura
         ]);
 
         return $pdo->lastInsertId();
