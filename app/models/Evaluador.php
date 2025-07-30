@@ -67,4 +67,72 @@ class Evaluador
             return false;
         }
     }
+
+    public static function actualizar($id, $nombre, $apellido, $email, $password = null)
+    {
+        global $pdo;
+        
+        try {
+            $pdo->beginTransaction();
+            
+            if ($password) {
+                $hash = password_hash($password, PASSWORD_DEFAULT);
+                $stmt = $pdo->prepare("UPDATE evaluadores SET nombre = ?, apellido = ?, email = ?, password = ? WHERE id = ?");
+                $stmt->execute([$nombre, $apellido, $email, $hash, $id]);
+            } else {
+                $stmt = $pdo->prepare("UPDATE evaluadores SET nombre = ?, apellido = ?, email = ? WHERE id = ?");
+                $stmt->execute([$nombre, $apellido, $email, $id]);
+            }
+            
+            // Actualizar también en la tabla usuarios
+            $stmt = $pdo->prepare("UPDATE usuarios SET nombre = ?, apellido = ?, email = ? WHERE email = (SELECT email FROM evaluadores WHERE id = ?)");
+            $stmt->execute([$nombre, $apellido, $email, $id]);
+            
+            if ($password) {
+                $hash = password_hash($password, PASSWORD_DEFAULT);
+                $stmt = $pdo->prepare("UPDATE usuarios SET password = ? WHERE email = ?");
+                $stmt->execute([$hash, $email]);
+            }
+            
+            $pdo->commit();
+            return true;
+            
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    public static function eliminar($id)
+    {
+        global $pdo;
+        
+        try {
+            $pdo->beginTransaction();
+            
+            // Obtener el email del evaluador antes de eliminarlo
+            $stmt = $pdo->prepare("SELECT email FROM evaluadores WHERE id = ?");
+            $stmt->execute([$id]);
+            $evaluador = $stmt->fetch();
+            
+            if (!$evaluador) {
+                throw new Exception('Evaluador no encontrado');
+            }
+            
+            // Eliminar de la tabla evaluadores
+            $stmt = $pdo->prepare("DELETE FROM evaluadores WHERE id = ?");
+            $stmt->execute([$id]);
+            
+            // Eliminar de la tabla usuarios
+            $stmt = $pdo->prepare("DELETE FROM usuarios WHERE email = ? AND rol = 'evaluador'");
+            $stmt->execute([$evaluador['email']]);
+            
+            $pdo->commit();
+            return true;
+            
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
 }

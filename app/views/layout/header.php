@@ -24,11 +24,7 @@
         text-decoration: none !important;
       }
       .btn-volver:hover {
-        transform: translateY(-2px);
         box-shadow: 0 7px 20px rgba(106, 17, 203, 0.4);
-      }
-      .btn-volver:active {
-        transform: translateY(0);
       }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

@@ -5,16 +5,19 @@ class ResultadoTest
     public static function crear($data)
     {
         global $pdo;
-        $stmt = $pdo->prepare("INSERT INTO resultados_tests (atleta_id, evaluador_id, test_id, lugar_id, fecha_test, resultado_json)
-            VALUES (?, ?, ?, ?, ?, ?)");
-
+        $stmt = $pdo->prepare("INSERT INTO resultados_tests 
+            (evaluacion_id, atleta_id, test_id, evaluador_id, fecha_test, resultado_json, observaciones, lugar_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        
         return $stmt->execute([
+            $data['evaluacion_id'],
             $data['atleta_id'],
-            $data['evaluador_id'],
             $data['test_id'],
-            $data['lugar_id'],
+            $data['evaluador_id'],
             $data['fecha_test'],
-            json_encode($data['resultado'])
+            $data['resultado_json'],
+            $data['observaciones'] ?? null,
+            $data['lugar_id'] ?? null
         ]);
     }
 
@@ -73,5 +76,29 @@ class ResultadoTest
             WHERE r.id = ?");
         $stmt->execute([$id]);
         return $stmt->fetch();
+    }
+    
+    public static function buscarPorTestYEvaluacion($test_id, $evaluacion_id)
+    {
+        global $pdo;
+        $stmt = $pdo->prepare("SELECT * FROM resultados_tests 
+            WHERE test_id = ? AND evaluacion_id = ?");
+        $stmt->execute([$test_id, $evaluacion_id]);
+        return $stmt->fetch();
+    }
+    
+    public static function actualizar($id, $data)
+    {
+        global $pdo;
+        $stmt = $pdo->prepare("UPDATE resultados_tests SET 
+            resultado_json = ?, observaciones = ?, fecha_test = ?
+            WHERE id = ?");
+        
+        return $stmt->execute([
+            $data['resultado_json'],
+            $data['observaciones'] ?? null,
+            $data['fecha_test'],
+            $id
+        ]);
     }
 }

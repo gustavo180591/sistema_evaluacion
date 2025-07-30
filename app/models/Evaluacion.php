@@ -99,6 +99,28 @@ class Evaluacion
         $stmt->execute([$evaluacion['atleta_id']]);
         return $stmt->fetchAll();
     }
+    
+    public static function buscarEnProgreso($atleta_id, $evaluador_id)
+    {
+        global $pdo;
+        $stmt = $pdo->prepare("SELECT * FROM evaluaciones 
+            WHERE atleta_id = ? AND evaluador_id = ? AND estado = 'iniciada'
+            ORDER BY fecha_creacion DESC LIMIT 1");
+        $stmt->execute([$atleta_id, $evaluador_id]);
+        return $stmt->fetch();
+    }
+    
+    public static function obtenerResultadosPorEvaluacion($evaluacion_id)
+    {
+        global $pdo;
+        $stmt = $pdo->prepare("SELECT rt.*, t.nombre_test, t.descripcion
+            FROM resultados_tests rt
+            JOIN tests t ON rt.test_id = t.id
+            WHERE rt.evaluacion_id = ?
+            ORDER BY rt.fecha_test ASC");
+        $stmt->execute([$evaluacion_id]);
+        return $stmt->fetchAll();
+    }
 
     public static function todos()
     {

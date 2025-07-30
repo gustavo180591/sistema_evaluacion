@@ -20,6 +20,11 @@
       <p>Revisión general de datos del sistema.</p>
       <a href="index.php?controller=Admin&action=estadisticas"><button>Ver estadísticas</button></a>
     </div>
+    <div class="card">
+      <h3>Tests</h3>
+      <p>Gestión de tests disponibles para evaluaciones.</p>
+      <a href="index.php?controller=Admin&action=tests"><button>Gestionar tests</button></a>
+    </div>
   </div>
 </div>
 

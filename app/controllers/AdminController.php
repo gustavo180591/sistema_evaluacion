@@ -11,7 +11,7 @@ class AdminController
     
     public function usuarios()
     {
-        if ($_SESSION['rol'] !== 'administrador') {
+        if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'administrador') {
             header('Location: index.php?controller=Dashboard');
             exit;
         }
@@ -24,7 +24,7 @@ class AdminController
 
     public function estadisticas()
     {
-        if ($_SESSION['rol'] !== 'administrador') {
+        if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'administrador') {
             header('Location: index.php?controller=Dashboard');
             exit;
         }
@@ -41,7 +41,7 @@ class AdminController
 
     public function nuevoUsuario()
     {
-        if ($_SESSION['rol'] !== 'administrador') {
+        if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'administrador') {
             header('Location: index.php?controller=Dashboard');
             exit;
         }
@@ -99,7 +99,7 @@ class AdminController
     }
     
     public function toggleEstadoUsuario() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || $_SESSION['rol'] !== 'administrador') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_SESSION['rol']) || $_SESSION['rol'] !== 'administrador') {
             header('Location: index.php?controller=Dashboard');
             exit;
         }
@@ -129,6 +129,152 @@ class AdminController
         }
         
         header('Location: index.php?controller=Admin&action=usuarios');
+        exit;
+    }
+
+    public function tests()
+    {
+        if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'administrador') {
+            header('Location: index.php?controller=Dashboard');
+            exit;
+        }
+
+        require_once __DIR__ . '/../models/Test.php';
+        $tests = Test::todos();
+
+        require_once __DIR__ . '/../views/admin/tests.php';
+    }
+
+    public function nuevoTest()
+    {
+        if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'administrador') {
+            header('Location: index.php?controller=Dashboard');
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $nombre_test = trim($_POST['nombre_test'] ?? '');
+            $descripcion = trim($_POST['descripcion'] ?? '');
+
+            // Validaciones
+            $errores = [];
+            if (empty($nombre_test)) $errores[] = 'El nombre del test es obligatorio';
+            if (empty($descripcion)) $errores[] = 'La descripción es obligatoria';
+
+            if (empty($errores)) {
+                require_once __DIR__ . '/../models/Test.php';
+                
+                try {
+                    $resultado = Test::crear($nombre_test, $descripcion);
+                    if ($resultado) {
+                        $_SESSION['mensaje'] = 'Test creado exitosamente';
+                        $_SESSION['tipo_mensaje'] = 'success';
+                        header('Location: index.php?controller=Admin&action=tests');
+                        exit;
+                    } else {
+                        $errores[] = 'Error al crear el test';
+                    }
+                } catch (Exception $e) {
+                    $errores[] = 'Error al crear el test: ' . $e->getMessage();
+                }
+            }
+
+            if (!empty($errores)) {
+                $_SESSION['mensaje'] = implode(', ', $errores);
+                $_SESSION['tipo_mensaje'] = 'danger';
+            }
+        }
+
+        require_once __DIR__ . '/../views/admin/nuevo_test.php';
+    }
+
+    public function editarTest()
+    {
+        if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'administrador') {
+            header('Location: index.php?controller=Dashboard');
+            exit;
+        }
+
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            header('Location: index.php?controller=Admin&action=tests');
+            exit;
+        }
+
+        require_once __DIR__ . '/../models/Test.php';
+        $test = Test::buscarPorId($id);
+
+        if (!$test) {
+            $_SESSION['mensaje'] = 'Test no encontrado';
+            $_SESSION['tipo_mensaje'] = 'danger';
+            header('Location: index.php?controller=Admin&action=tests');
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $nombre_test = trim($_POST['nombre_test'] ?? '');
+            $descripcion = trim($_POST['descripcion'] ?? '');
+
+            // Validaciones
+            $errores = [];
+            if (empty($nombre_test)) $errores[] = 'El nombre del test es obligatorio';
+            if (empty($descripcion)) $errores[] = 'La descripción es obligatoria';
+
+            if (empty($errores)) {
+                try {
+                    $resultado = Test::actualizar($id, $nombre_test, $descripcion);
+                    if ($resultado) {
+                        $_SESSION['mensaje'] = 'Test actualizado exitosamente';
+                        $_SESSION['tipo_mensaje'] = 'success';
+                        header('Location: index.php?controller=Admin&action=tests');
+                        exit;
+                    } else {
+                        $errores[] = 'Error al actualizar el test';
+                    }
+                } catch (Exception $e) {
+                    $errores[] = 'Error al actualizar el test: ' . $e->getMessage();
+                }
+            }
+
+            if (!empty($errores)) {
+                $_SESSION['mensaje'] = implode(', ', $errores);
+                $_SESSION['tipo_mensaje'] = 'danger';
+            }
+        }
+
+        require_once __DIR__ . '/../views/admin/editar_test.php';
+    }
+
+    public function eliminarTest()
+    {
+        if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'administrador') {
+            header('Location: index.php?controller=Dashboard');
+            exit;
+        }
+
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            header('Location: index.php?controller=Admin&action=tests');
+            exit;
+        }
+
+        require_once __DIR__ . '/../models/Test.php';
+        
+        try {
+            $resultado = Test::eliminar($id);
+            if ($resultado) {
+                $_SESSION['mensaje'] = 'Test eliminado exitosamente';
+                $_SESSION['tipo_mensaje'] = 'success';
+            } else {
+                $_SESSION['mensaje'] = 'Error al eliminar el test';
+                $_SESSION['tipo_mensaje'] = 'danger';
+            }
+        } catch (Exception $e) {
+            $_SESSION['mensaje'] = $e->getMessage();
+            $_SESSION['tipo_mensaje'] = 'danger';
+        }
+
+        header('Location: index.php?controller=Admin&action=tests');
         exit;
     }
 }
