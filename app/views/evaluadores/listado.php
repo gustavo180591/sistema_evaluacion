@@ -4,7 +4,13 @@
     <div class="row">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 mb-0">Gestión de Evaluadores</h1>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="index.php" class="btn btn-outline-success btn-home">
+                        <i class="fas fa-home me-2"></i>
+                        <span>Volver a Inicio</span>
+                    </a>
+                    <h1 class="h3 mb-0">Gestión de Evaluadores</h1>
+                </div>
                 <a href="index.php?controller=Evaluador&action=crear" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Nuevo Evaluador
                 </a>
@@ -76,6 +82,77 @@
         </div>
     </div>
 </div>
+
+<style>
+/* Estilos para el botón de inicio */
+.btn-home {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-home::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-home:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-home:hover::before {
+    left: 100%;
+}
+
+.btn-home:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(40, 167, 69, 0.3);
+}
+
+.btn-home i {
+    font-size: 1.1rem;
+    transition: transform 0.3s ease;
+}
+
+.btn-home:hover i {
+    transform: scale(1.1);
+}
+
+/* Responsive para el botón */
+@media (max-width: 768px) {
+    .btn-home {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .btn-home span {
+        display: none;
+    }
+    
+    .btn-home i {
+        margin-right: 0 !important;
+    }
+}
+</style>
 
 <script>
 function confirmarEliminar(id, nombre) {

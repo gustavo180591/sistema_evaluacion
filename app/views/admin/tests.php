@@ -93,37 +93,7 @@
                 </div>
             </div>
 
-            <!-- Información adicional -->
-            <div class="row mt-4">
-                <div class="col-md-6">
-                    <div class="card border-info">
-                        <div class="card-header bg-info text-white">
-                            <h6 class="mb-0"><i class="fas fa-info-circle"></i> Información Importante</h6>
-                        </div>
-                        <div class="card-body">
-                            <ul class="mb-0">
-                                <li>Los tests creados aquí estarán disponibles para las evaluaciones</li>
-                                <li>No se pueden eliminar tests que tengan resultados asociados</li>
-                                <li>Los cambios se reflejan inmediatamente en el sistema</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card border-warning">
-                        <div class="card-header bg-warning text-dark">
-                            <h6 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Recomendaciones</h6>
-                        </div>
-                        <div class="card-body">
-                            <ul class="mb-0">
-                                <li>Usa nombres descriptivos y claros</li>
-                                <li>Incluye información sobre unidades de medida</li>
-                                <li>Mantén las descripciones concisas pero informativas</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
         </div>
     </div>
 </div>

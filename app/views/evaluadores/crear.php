@@ -72,7 +72,7 @@
                                     <input type="password" class="form-control" id="confirm_password" 
                                            name="confirm_password" required>
                                     <div class="invalid-feedback">
-                                        Las contraseñas no coinciden.
+                                        
                                     </div>
                                 </div>
                             </div>

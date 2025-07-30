@@ -135,4 +135,11 @@ class Evaluador
             throw $e;
         }
     }
+
+    public static function contar()
+    {
+        global $pdo;
+        $stmt = $pdo->query("SELECT COUNT(*) FROM evaluadores");
+        return $stmt->fetchColumn();
+    }
 }

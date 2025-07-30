@@ -35,4 +35,11 @@ class Usuario
         $stmt = $pdo->query("SELECT * FROM usuarios ORDER BY id DESC");
         return $stmt->fetchAll();
     }
+
+    public static function contar()
+    {
+        global $pdo;
+        $stmt = $pdo->query("SELECT COUNT(*) FROM usuarios");
+        return $stmt->fetchColumn();
+    }
 }

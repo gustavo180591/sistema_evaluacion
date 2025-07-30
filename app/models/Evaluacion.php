@@ -135,4 +135,11 @@ class Evaluacion
             ORDER BY e.fecha_evaluacion DESC");
         return $stmt->fetchAll();
     }
+
+    public static function contar()
+    {
+        global $pdo;
+        $stmt = $pdo->query("SELECT COUNT(*) FROM evaluaciones");
+        return $stmt->fetchColumn();
+    }
 } 
