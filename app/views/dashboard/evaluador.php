@@ -71,39 +71,7 @@
     </div>
   </div>
 
-  <!-- Resumen Rápido -->
-  <div class="row mt-4">
-    <div class="col-12">
-      <h3>📈 Resumen de Actividad</h3>
-      <div class="table-container">
-        <div class="p-3 text-center">
-          <p class="text-muted mb-2">
-            <em>Aquí se mostrará un resumen de tu actividad reciente...</em>
-          </p>
-          <div class="row">
-            <div class="col-md-4">
-              <div class="badge badge-info p-2">
-                <strong>Evaluaciones Activas</strong><br>
-                <span style="font-size: 1.2em;">-</span>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="badge badge-success p-2">
-                <strong>Tests Completados</strong><br>
-                <span style="font-size: 1.2em;">-</span>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="badge badge-primary p-2">
-                <strong>Atletas Evaluados</strong><br>
-                <span style="font-size: 1.2em;">-</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  
 </div>
 
 <?php require_once __DIR__ . '/../layout/footer.php'; ?>

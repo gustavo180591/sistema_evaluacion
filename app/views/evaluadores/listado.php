@@ -1,16 +1,14 @@
 <?php require_once __DIR__ . '/../layout/header.php'; ?>
+<?php require_once __DIR__ . '/../componentes/navbar.php'; ?>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="d-flex align-items-center gap-3">
-                    <a href="index.php" class="btn btn-outline-success btn-home">
-                        <i class="fas fa-home me-2"></i>
-                        <span>Volver a Inicio</span>
-                    </a>
-                    <h1 class="h3 mb-0">Gestión de Evaluadores</h1>
-                </div>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-xl-11 col-lg-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-5">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-user-tie me-2"></i>Gestión de Evaluadores
+                </h1>
                 <a href="index.php?controller=Evaluador&action=crear" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Nuevo Evaluador
                 </a>

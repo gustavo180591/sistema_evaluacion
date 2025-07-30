@@ -1,10 +1,14 @@
 <?php require_once __DIR__ . '/../layout/header.php'; ?>
+<?php require_once __DIR__ . '/../componentes/navbar.php'; ?>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 mb-0">Gestión de Tests</h1>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-xl-11 col-lg-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-5">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-clipboard-list me-2"></i>Gestión de Tests
+                </h1>
                 <a href="index.php?controller=Admin&action=nuevoTest" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Nuevo Test
                 </a>

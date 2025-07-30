@@ -21,24 +21,9 @@
     <div class="alert alert-warning">
       <h5>⚠️ Sin atletas asignados</h5>
       <p>No tienes atletas asignados a tu establecimiento. Contacta al administrador para que te asigne atletas.</p>
-      <a href="index.php?controller=Dashboard&action=index" class="btn" style="
-        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-        color: white;
-        border: none;
-        border-radius: 50px;
-        padding: 10px 20px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3);
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        text-decoration: none;
-      ">
-        <i class="fas fa-arrow-left"></i> Volver al Dashboard
-      </a>
+      <a href="index.php?controller=Dashboard&action=index" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+                </a>
       <style>
         .btn:hover {
           transform: translateY(-2px);

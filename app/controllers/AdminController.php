@@ -173,7 +173,11 @@ class AdminController
             if (empty($nombre)) $errores[] = 'El nombre es obligatorio';
             if (empty($apellido)) $errores[] = 'El apellido es obligatorio';
             if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) $errores[] = 'El email no es válido';
-            if (empty($password)) $errores[] = 'La contraseña es obligatoria';
+            if (empty($password)) {
+                $errores[] = 'La contraseña es obligatoria';
+            } elseif (strlen($password) < 8) {
+                $errores[] = 'La contraseña debe tener al menos 8 caracteres';
+            }
             if ($password !== $confirm_password) $errores[] = 'Las contraseñas no coinciden';
 
             if (empty($errores)) {

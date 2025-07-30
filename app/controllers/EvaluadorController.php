@@ -65,7 +65,7 @@ class EvaluadorController
                             'estado' => 'activo'
                         ]);
 
-                        $_SESSION['mensaje'] = 'Evaluador creado exitosamente';
+                        $_SESSION['mensaje'] = 'Evaluador creado con exito';
                         $_SESSION['tipo_mensaje'] = 'success';
                         header('Location: index.php?controller=Evaluador&action=listado');
                         exit;

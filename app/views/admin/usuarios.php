@@ -138,18 +138,36 @@
     }
 </style>
 
-<div class="container py-4">
-    <div class="card">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-            <div>
-                <h4 class="mb-0 fw-bold text-primary">
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-xl-11 col-lg-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-5">
+                <h1 class="h3 mb-0">
                     <i class="fas fa-users-cog me-2"></i>Administración de Usuarios
-                </h4>
-                <p class="text-muted mb-0 small">Gestión de usuarios del sistema</p>
+                </h1>
+                <a href="index.php?controller=Admin&action=nuevoUsuario" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Nuevo Usuario
+                </a>
             </div>
-            <a href="index.php?controller=Admin&action=nuevoUsuario" class="btn btn-primary btn-sm">
-                <i class="fas fa-plus me-1"></i> Nuevo Usuario
-            </a>
+
+            <?php if (isset($_SESSION['mensaje'])): ?>
+                <div class="alert alert-<?php echo $_SESSION['tipo_mensaje'] ?? 'info'; ?> alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <?php echo $_SESSION['mensaje']; ?>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <?php unset($_SESSION['mensaje'], $_SESSION['tipo_mensaje']); ?>
+            <?php endif; ?>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Lista de Usuarios del Sistema</h5>
+                </div>
+                <div class="card-body">
+
         </div>
             
             <?php if (isset($_SESSION['mensaje'])): ?>
@@ -262,10 +280,8 @@
                     </tbody>
                 </table>
             </div>
-        </div>
-    </div>
-</div>
-
+                </div>
+            </div>
         </div>
     </div>
 </div>
