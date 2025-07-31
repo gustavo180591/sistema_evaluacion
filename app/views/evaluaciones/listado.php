@@ -84,6 +84,7 @@
                                                         <?php if ($evaluacion['hora_fin']): ?>
                                                             - <?php echo date('H:i', strtotime($evaluacion['hora_fin'])); ?>
                                                         <?php endif; ?>
+                                                        (BA)
                                                     </small>
                                                 <?php endif; ?>
                                             </td>

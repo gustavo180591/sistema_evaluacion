@@ -69,6 +69,16 @@
         <a href="index.php?controller=Test&action=asignar" class="btn btn-warning">Test Individual</a>
       </div>
     </div>
+
+    <!-- Configuración del Sistema -->
+    <div class="dashboard-card">
+      <div class="icon">⚙️</div>
+      <h3>Configuración</h3>
+      <p>Configuración general del sistema y parámetros de evaluación</p>
+      <div class="mt-2">
+        <a href="index.php?controller=Admin&action=configuracion" class="btn btn-secondary">⚙️ Configurar</a>
+      </div>
+    </div>
   </div>
 
   

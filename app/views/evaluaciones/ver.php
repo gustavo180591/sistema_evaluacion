@@ -99,6 +99,7 @@
                                 <span class="badge badge-light text-primary mr-3 mb-1">
                                     <i class="fas fa-clock mr-1"></i> 
                                     <?php echo date('H:i', strtotime($evaluacion['hora_inicio'])); ?>
+                                    <small>(BA)</small>
                                 </span>
                                 <?php endif; ?>
                                 <span class="badge badge-light text-primary mb-1">

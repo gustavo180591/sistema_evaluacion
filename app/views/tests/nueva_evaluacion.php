@@ -84,9 +84,10 @@
           
           <div class="col-md-6">
             <div class="form-group">
-              <label for="hora_inicio" class="form-label">⏰ Hora de Inicio</label>
+              <label for="hora_inicio" class="form-label">⏰ Hora de Inicio <small class="text-muted">(Buenos Aires)</small></label>
               <input type="time" name="hora_inicio" id="hora_inicio" 
-                     class="form-control" value="<?php echo date('H:i'); ?>">
+                     class="form-control" value="<?php echo date('H:i'); ?>"
+                     title="Hora actual de Buenos Aires: <?php echo date('H:i T'); ?>">
             </div>
           </div>
         </div>

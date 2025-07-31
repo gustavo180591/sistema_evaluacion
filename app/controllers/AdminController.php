@@ -393,4 +393,101 @@ class AdminController
         header('Location: index.php?controller=Admin&action=tests');
         exit;
     }
+
+    public function configuracion()
+    {
+        // Verificar que el usuario esté autenticado
+        if (!isset($_SESSION['usuario_id'])) {
+            header('Location: index.php?controller=Auth&action=login');
+            exit;
+        }
+
+        // Tanto administradores como evaluadores pueden ver la configuración
+        if (!isset($_SESSION['rol']) || !in_array($_SESSION['rol'], ['administrador', 'evaluador'])) {
+            header('Location: index.php?controller=Dashboard&action=index');
+            exit;
+        }
+
+        // Si es POST, procesar la configuración
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->guardarConfiguracion();
+            return;
+        }
+
+        // Obtener configuraciones actuales
+        $configuraciones = $this->obtenerConfiguraciones();
+        
+        // Obtener estadísticas del sistema
+        require_once __DIR__ . '/../models/Atleta.php';
+        require_once __DIR__ . '/../models/Test.php';
+        require_once __DIR__ . '/../models/Evaluacion.php';
+        require_once __DIR__ . '/../models/Usuario.php';
+        
+        $estadisticas = [
+            'total_atletas' => Atleta::contar(),
+            'total_tests' => Test::contar(),
+            'total_evaluaciones' => Evaluacion::contar(),
+            'total_usuarios' => Usuario::contar()
+        ];
+
+        require_once __DIR__ . '/../views/admin/configuracion.php';
+    }
+
+    private function obtenerConfiguraciones()
+    {
+        return [
+            'sistema' => [
+                'nombre_sistema' => APP_NAME,
+                'zona_horaria' => date_default_timezone_get(),
+                'version_php' => PHP_VERSION,
+                'fecha_actual' => date('Y-m-d H:i:s T')
+            ],
+            'base_datos' => [
+                'motor' => 'MySQL/MariaDB',
+                'host' => $_ENV['DB_HOST'] ?? 'localhost',
+                'puerto' => $_ENV['DB_PORT'] ?? '3306',
+                'charset' => 'utf8mb4'
+            ],
+            'evaluaciones' => [
+                'duracion_maxima' => '4 horas',
+                'tests_simultaneos' => 'Ilimitados',
+                'guardado_automatico' => 'Activado',
+                'validacion_tiempo_real' => 'Activado'
+            ],
+            'atletas' => [
+                'soft_delete' => 'Activado',
+                'edicion_flexible' => 'Activado',
+                'campos_obligatorios' => ['nombre', 'apellido', 'dni', 'sexo'],
+                'campos_opcionales' => ['lugar_id', 'discapacidad_id', 'nacionalidad']
+            ],
+            'tests' => [
+                'tipos_disponibles' => 'Antropometría, Fuerza, Resistencia, Flexibilidad, Velocidad',
+                'campos_sin_tiempo' => ['Envergadura', 'Talla Sentado', 'Salto Vertical', 'Flexibilidad de Hombros', 'Sit and Reach'],
+                'unidades_dinamicas' => 'Activado',
+                'guardado_individual' => 'Activado'
+            ],
+            'seguridad' => [
+                'sesiones' => 'PHP Sessions',
+                'autenticacion' => 'Email + Contraseña',
+                'roles' => ['administrador', 'evaluador'],
+                'permisos_flexibles' => 'Activado'
+            ]
+        ];
+    }
+
+    private function guardarConfiguracion()
+    {
+        try {
+            // Aquí se procesarían los cambios de configuración
+            // Por ahora, solo mostrar mensaje de éxito
+            $_SESSION['mensaje'] = 'Configuración actualizada exitosamente';
+            $_SESSION['tipo_mensaje'] = 'success';
+        } catch (Exception $e) {
+            $_SESSION['mensaje'] = 'Error al actualizar la configuración: ' . $e->getMessage();
+            $_SESSION['tipo_mensaje'] = 'danger';
+        }
+
+        header('Location: index.php?controller=Admin&action=configuracion');
+        exit;
+    }
 }

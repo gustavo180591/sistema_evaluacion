@@ -80,14 +80,17 @@
                                         <div class="form-group">
                                             <label for="hora_inicio" class="form-label fw-semibold">
                                                 <i class="fas fa-clock me-1"></i> Hora de Inicio
+                                                <small class="text-muted fw-normal">(Buenos Aires)</small>
                                             </label>
                                             <input type="time" 
                                                    class="form-control form-control-sm" 
                                                    id="hora_inicio" 
                                                    name="hora_inicio" 
-                                                   value="<?php echo date('H:i'); ?>">
+                                                   value="<?php echo date('H:i'); ?>"
+                                                   title="Hora actual de Buenos Aires: <?php echo date('H:i T'); ?>">
                                             <small class="form-text text-muted">
-                                                Hora de inicio de la evaluación
+                                                <i class="fas fa-map-marker-alt me-1"></i>
+                                                Hora de inicio de la evaluación (Zona horaria: Buenos Aires - <?php echo date('T'); ?>)
                                             </small>
                                         </div>
                                     </div>

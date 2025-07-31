@@ -25,6 +25,11 @@
       <p>Gestión de tests disponibles para evaluaciones.</p>
       <a href="index.php?controller=Admin&action=tests"><button>Gestionar tests</button></a>
     </div>
+    <div class="card">
+      <h3>⚙️ Configuración</h3>
+      <p>Configuración general del sistema y parámetros.</p>
+      <a href="index.php?controller=Admin&action=configuracion"><button>Configuración</button></a>
+    </div>
   </div>
 </div>
 
