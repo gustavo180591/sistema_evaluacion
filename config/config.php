@@ -4,7 +4,7 @@
 define('APP_NAME', 'Sistema de Captación');
 
 // Ruta base (útil para enlaces relativos si es necesario)
-define('BASE_URL', 'http://localhost:8000/');
+define('BASE_URL', 'http://localhost:1000/');
 
 // Carpeta para uploads
 define('UPLOAD_PATH', __DIR__ . '/../storage/uploads/');

@@ -18,8 +18,14 @@ class AtletaController
 
     public function crear()
     {
+        // Log temporal para diagnóstico
+        error_log("AtletaController::crear() - INICIO");
+        error_log("SESSION: " . print_r($_SESSION, true));
+        error_log("REQUEST_METHOD: " . $_SERVER['REQUEST_METHOD']);
+        
         // session_start() ya se ejecuta en index.php
         if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] !== 'evaluador') {
+            error_log("AtletaController::crear() - Redirección por falta de permisos");
             header('Location: index.php?controller=Dashboard&action=index');
             exit;
         }
@@ -31,8 +37,12 @@ class AtletaController
         $formData = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            error_log("AtletaController::crear() - Procesando POST");
+            error_log("POST data: " . print_r($_POST, true));
+            
             // Asegurar que evaluador_id esté presente en sesión antes de procesar POST
             if (!isset($_SESSION['evaluador_id'])) {
+                error_log("AtletaController::crear() - evaluador_id no está en sesión, buscando...");
                 require_once __DIR__ . '/../models/Evaluador.php';
                 global $pdo;
                 $stmt = $pdo->prepare("SELECT email FROM usuarios WHERE id = ? LIMIT 1");
@@ -92,12 +102,16 @@ class AtletaController
                     ];
                     
                     // Usar el ID del evaluador correcto desde sesión
-                    Atleta::crear($_SESSION['evaluador_id'], $data);
+                    error_log("AtletaController::crear() - Llamando a Atleta::crear con evaluador_id: " . $_SESSION['evaluador_id']);
+                    $resultado = Atleta::crear($_SESSION['evaluador_id'], $data);
+                    error_log("AtletaController::crear() - Resultado de crear: " . ($resultado ? 'ÉXITO' : 'FALLO'));
                     
                     // Redirigir a la vista de adaptados si venimos de ahí
                     if ($esAdaptado) {
+                        error_log("AtletaController::crear() - Redirigiendo a adaptados");
                         header('Location: index.php?controller=Atleta&action=adaptados&success=1');
                     } else {
+                        error_log("AtletaController::crear() - Redirigiendo a listado");
                         header('Location: index.php?controller=Atleta&action=listado&success=1');
                     }
                     exit;

@@ -96,6 +96,10 @@ class Atleta
     {
         global $pdo;
         
+        error_log("Atleta::crear() - INICIO");
+        error_log("Atleta::crear() - evaluador_id: " . $evaluador_id);
+        error_log("Atleta::crear() - data: " . print_r($data, true));
+        
         // Usar lugar_id del formulario o 1 por defecto
         $lugar_id = $data['lugar_id'] ?? 1;
         
@@ -186,9 +190,24 @@ class Atleta
         }
         
         $sql = "INSERT INTO atletas (" . implode(', ', $campos_finales) . ") VALUES (" . implode(', ', $placeholders) . ")";
-        $stmt = $pdo->prepare($sql);
+        error_log("Atleta::crear() - SQL: " . $sql);
+        error_log("Atleta::crear() - Valores: " . print_r($valores_finales, true));
         
-        return $stmt->execute($valores_finales);
+        try {
+            $stmt = $pdo->prepare($sql);
+            $resultado = $stmt->execute($valores_finales);
+            
+            if (!$resultado) {
+                error_log("Atleta::crear() - Error SQL: " . print_r($stmt->errorInfo(), true));
+            } else {
+                error_log("Atleta::crear() - Inserción exitosa, ID: " . $pdo->lastInsertId());
+            }
+            
+            return $resultado;
+        } catch (Exception $e) {
+            error_log("Atleta::crear() - Excepción: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     public static function actualizar($id, $data)
