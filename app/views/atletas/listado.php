@@ -189,8 +189,23 @@
                   </td>
                   <td>
                     <small class="text-muted">
-                      <strong>👁️ Visual:</strong> <?php echo htmlspecialchars($a['lateralidad_visual']); ?><br>
-                      <strong>🦶 Podal:</strong> <?php echo htmlspecialchars($a['lateralidad_podal']); ?>
+                      <?php 
+                      // Convertir formato de BD a formato de visualización más amigable
+                      $visual = $a['lateralidad_visual'] ?? '';
+                      $podal = $a['lateralidad_podal'] ?? '';
+                      
+                      // Conversión visual
+                      if ($visual === 'Derecho') $visual = 'Derecha';
+                      if ($visual === 'Izquierdo') $visual = 'Izquierda';
+                      if ($visual === 'Ambidiestro') $visual = 'Ambas';
+                      
+                      // Conversión podal
+                      if ($podal === 'Derecho') $podal = 'Derecha';
+                      if ($podal === 'Izquierdo') $podal = 'Izquierda';
+                      if ($podal === 'Ambidiestro') $podal = 'Ambas';
+                      ?>
+                      <strong>👁️ Visual:</strong> <?php echo htmlspecialchars($visual); ?><br>
+                      <strong>🦶 Podal:</strong> <?php echo htmlspecialchars($podal); ?>
                     </small>
                   </td>
                   <td class="text-center">

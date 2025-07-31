@@ -107,53 +107,88 @@ class Atleta
             $sexo = 'F';
         }
         
-        // Verificar si el campo activo existe
-        $checkStmt = $pdo->query("SHOW COLUMNS FROM atletas LIKE 'activo'");
-        $campoActivoExiste = $checkStmt->rowCount() > 0;
+        // Las lateralidades ya vienen en formato correcto de BD
+        $lateralidad_visual = $data['lateralidad_visual'] ?? '';
+        $lateralidad_podal = $data['lateralidad_podal'] ?? '';
         
-        // Campos básicos que siempre estarán presentes
-        $campos_basicos = [
-            'evaluador_id', 'lugar_id', 'nombre', 'apellido', 'dni', 'sexo',
-            'edad', 'nacionalidad', 'altura', 'peso', 
-            'lateralidad_visual', 'lateralidad_podal', 'fecha_registro'
-        ];
-        
-        $valores_basicos = [
-            $evaluador_id,
-            $lugar_id,
-            $data['nombre'],
-            $data['apellido'],
-            $data['dni'],
-            $sexo,
-            $data['edad'],
-            $data['nacionalidad'] ?? null,
-            $data['altura'],
-            $data['peso'],
-            $data['lateralidad_visual'],
-            $data['lateralidad_podal'],
-            'NOW()'
-        ];
-        
-        // Agregar discapacidad_id si está presente
-        if (isset($data['discapacidad_id']) && !empty($data['discapacidad_id'])) {
-            $campos_basicos[] = 'discapacidad_id';
-            $valores_basicos[] = $data['discapacidad_id'];
+        // Verificar qué campos existen realmente en la tabla
+        $stmt = $pdo->query("SHOW COLUMNS FROM atletas");
+        $columnasExistentes = [];
+        while ($row = $stmt->fetch()) {
+            $columnasExistentes[] = $row['Field'];
         }
         
-        // Agregar campo activo si existe
-        if ($campoActivoExiste) {
-            $campos_basicos[] = 'activo';
-            $valores_basicos[] = true;
+        // Mapeo de campos del formulario a BD para inserción
+        $mapeoCrear = [
+            'evaluador_id' => $evaluador_id,
+            'lugar_id' => $lugar_id,
+            'nombre' => $data['nombre'],
+            'apellido' => $data['apellido'],
+            'dni' => $data['dni'],
+            'sexo' => $sexo,
+            'lateralidad_visual' => $lateralidad_visual,
+            'lateralidad_podal' => $lateralidad_podal
+        ];
+        
+        // Campos opcionales con mapeo especial
+        if (isset($data['edad']) && in_array('fecha_nacimiento', $columnasExistentes)) {
+            $edad = intval($data['edad']);
+            $fechaNacimiento = date('Y-m-d', strtotime("-$edad years"));
+            $mapeoCrear['fecha_nacimiento'] = $fechaNacimiento;
         }
         
-        // Construir la query
-        $placeholders = str_repeat('?,', count($valores_basicos) - 1) . 'NOW()';
-        $valores_execute = array_slice($valores_basicos, 0, -1); // Remover 'NOW()' para execute
+        if (isset($data['altura']) && in_array('altura_cm', $columnasExistentes)) {
+            $mapeoCrear['altura_cm'] = $data['altura'];
+        }
         
-        $sql = "INSERT INTO atletas (" . implode(', ', $campos_basicos) . ") VALUES ($placeholders)";
+        if (isset($data['peso']) && in_array('peso_kg', $columnasExistentes)) {
+            $mapeoCrear['peso_kg'] = $data['peso'];
+        }
+        
+        if (isset($data['nacionalidad']) && in_array('nacionalidad', $columnasExistentes)) {
+            $mapeoCrear['nacionalidad'] = $data['nacionalidad'];
+        }
+        
+        if (isset($data['discapacidad_id']) && !empty($data['discapacidad_id']) && in_array('discapacidad_id', $columnasExistentes)) {
+            $mapeoCrear['discapacidad_id'] = $data['discapacidad_id'];
+        }
+        
+        // Campos adicionales de la tabla si existen
+        if (in_array('envergadura_cm', $columnasExistentes)) {
+            $mapeoCrear['envergadura_cm'] = null; // O un valor por defecto
+        }
+        
+        if (in_array('altura_sentado_cm', $columnasExistentes)) {
+            $mapeoCrear['altura_sentado_cm'] = null; // O un valor por defecto
+        }
+        
+        if (in_array('activo', $columnasExistentes)) {
+            $mapeoCrear['activo'] = true;
+        }
+        
+        // Filtrar solo campos que existen en la tabla
+        $campos_finales = [];
+        $valores_finales = [];
+        $placeholders = [];
+        
+        foreach ($mapeoCrear as $campo => $valor) {
+            if (in_array($campo, $columnasExistentes)) {
+                $campos_finales[] = $campo;
+                $valores_finales[] = $valor;
+                $placeholders[] = '?';
+            }
+        }
+        
+        // Agregar fecha_registro si existe
+        if (in_array('fecha_registro', $columnasExistentes)) {
+            $campos_finales[] = 'fecha_registro';
+            $placeholders[] = 'NOW()';
+        }
+        
+        $sql = "INSERT INTO atletas (" . implode(', ', $campos_finales) . ") VALUES (" . implode(', ', $placeholders) . ")";
         $stmt = $pdo->prepare($sql);
         
-        return $stmt->execute($valores_execute);
+        return $stmt->execute($valores_finales);
     }
 
     public static function actualizar($id, $data)
@@ -164,7 +199,7 @@ class Atleta
         $campos = [];
         $valores = [];
         
-        // Campos opcionales que pueden o no estar presentes
+        // Mapeo de campos del formulario a campos de la base de datos
         $camposPermitidos = [
             'evaluador_id' => 'evaluador_id',
             'lugar_id' => 'lugar_id', 
@@ -172,23 +207,30 @@ class Atleta
             'apellido' => 'apellido',
             'dni' => 'dni',
             'sexo' => 'sexo',
-            'edad' => 'edad',
-            'nacionalidad' => 'nacionalidad',
-            'altura' => 'altura', // Mapear altura a altura (no altura_cm)
-            'peso' => 'peso', // Mapear peso a peso (no peso_kg)
+            'edad' => 'fecha_nacimiento', // Mapear edad a fecha_nacimiento (calcular)
+            'nacionalidad' => null, // Campo que puede no existir en BD
+            'altura' => 'altura_cm', // Mapear altura a altura_cm 
+            'peso' => 'peso_kg', // Mapear peso a peso_kg
             'lateralidad_visual' => 'lateralidad_visual',
             'lateralidad_podal' => 'lateralidad_podal',
             'discapacidad_id' => 'discapacidad_id'
         ];
         
+        // Verificar qué campos existen realmente en la tabla
+        $stmt = $pdo->query("SHOW COLUMNS FROM atletas");
+        $columnasExistentes = [];
+        while ($row = $stmt->fetch()) {
+            $columnasExistentes[] = $row['Field'];
+        }
+        
         // Construir la query dinámicamente solo con los campos presentes
         foreach ($camposPermitidos as $campoFormulario => $campoBD) {
-            if (isset($data[$campoFormulario])) {
+            if (isset($data[$campoFormulario]) && $campoBD !== null && in_array($campoBD, $columnasExistentes)) {
                 $campos[] = "$campoBD = ?";
                 
-                // Conversión especial para el campo sexo
+                // Conversiones especiales
                 if ($campoFormulario === 'sexo') {
-                    // Convertir formato completo a formato de BD si es necesario
+                    // Convertir formato completo a formato de BD
                     $sexo = strtolower($data[$campoFormulario]);
                     if ($sexo === 'masculino') {
                         $valores[] = 'M';
@@ -197,10 +239,36 @@ class Atleta
                     } else {
                         $valores[] = $data[$campoFormulario];
                     }
-                } else {
+                } elseif ($campoFormulario === 'edad') {
+                    // Convertir edad a fecha_nacimiento (aproximada)
+                    $edad = intval($data[$campoFormulario]);
+                    $fechaNacimiento = date('Y-m-d', strtotime("-$edad years"));
+                    $valores[] = $fechaNacimiento;
+                } elseif ($campoFormulario === 'lateralidad_visual') {
+                    // Valor directo de BD
                     $valores[] = $data[$campoFormulario];
+                } elseif ($campoFormulario === 'lateralidad_podal') {
+                    // Valor directo de BD
+                    $valores[] = $data[$campoFormulario];
+                } else {
+                    // Manejar campos que requieren NULL en lugar de string vacío
+                    if (in_array($campoBD, ['discapacidad_id', 'lugar_id', 'evaluador_id']) && 
+                        (trim($data[$campoFormulario]) === '' || $data[$campoFormulario] === null)) {
+                        $valores[] = null;
+                    } elseif (in_array($campoBD, ['altura_cm', 'peso_kg', 'envergadura_cm', 'altura_sentado_cm']) && 
+                              (trim($data[$campoFormulario]) === '' || $data[$campoFormulario] === null)) {
+                        $valores[] = null;
+                    } else {
+                        $valores[] = $data[$campoFormulario];
+                    }
                 }
             }
+        }
+        
+        // Manejar nacionalidad si el campo existe
+        if (isset($data['nacionalidad']) && in_array('nacionalidad', $columnasExistentes)) {
+            $campos[] = "nacionalidad = ?";
+            $valores[] = $data['nacionalidad'];
         }
         
         if (empty($campos)) {

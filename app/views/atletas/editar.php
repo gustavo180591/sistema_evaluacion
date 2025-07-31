@@ -272,10 +272,10 @@
                                     <div class="field-card">
                                         <div class="form-group">
                                             <label for="lugar_id" class="form-label">
-                                                <i class="fas fa-map-marker-alt"></i> Lugar *
+                                                <i class="fas fa-map-marker-alt"></i> Lugar
                                             </label>
-                                            <select name="lugar_id" id="lugar_id" class="form-control" required>
-                                                <option value="">Seleccionar lugar...</option>
+                                            <select name="lugar_id" id="lugar_id" class="form-control">
+                                                <option value="">Sin lugar específico</option>
                                                 <?php 
                                                 require_once __DIR__ . '/../../models/Lugar.php';
                                                 $lugares = Lugar::todos();
@@ -289,9 +289,7 @@
                                                     </option>
                                                 <?php endforeach; ?>
                                             </select>
-                                            <div class="invalid-feedback">
-                                                Selecciona un lugar
-                                            </div>
+                                            <small class="text-muted">Opcional: selecciona el lugar de entrenamiento principal</small>
                                         </div>
                                     </div>
                                 </div>
@@ -362,9 +360,9 @@
                                             </label>
                                             <select name="lateralidad_visual" id="lateralidad_visual" class="form-control" required>
                                                 <option value="">Seleccionar...</option>
-                                                <option value="derecha" <?php echo (($atleta['lateralidad_visual'] ?? '') == 'derecha') ? 'selected' : ''; ?>>Derecha</option>
-                                                <option value="izquierda" <?php echo (($atleta['lateralidad_visual'] ?? '') == 'izquierda') ? 'selected' : ''; ?>>Izquierda</option>
-                                                <option value="ambos" <?php echo (($atleta['lateralidad_visual'] ?? '') == 'ambos') ? 'selected' : ''; ?>>Ambos</option>
+                                                <option value="Derecho" <?php echo (($atleta['lateralidad_visual'] ?? '') == 'Derecho') ? 'selected' : ''; ?>>👁️ Derecha</option>
+                                                <option value="Izquierdo" <?php echo (($atleta['lateralidad_visual'] ?? '') == 'Izquierdo') ? 'selected' : ''; ?>>👁️ Izquierda</option>
+                                                <option value="Ambidiestro" <?php echo (($atleta['lateralidad_visual'] ?? '') == 'Ambidiestro') ? 'selected' : ''; ?>>👀 Ambos</option>
                                             </select>
                                             <div class="invalid-feedback">
                                                 Selecciona la lateralidad visual
@@ -381,9 +379,9 @@
                                             </label>
                                             <select name="lateralidad_podal" id="lateralidad_podal" class="form-control" required>
                                                 <option value="">Seleccionar...</option>
-                                                <option value="derecha" <?php echo (($atleta['lateralidad_podal'] ?? '') == 'derecha') ? 'selected' : ''; ?>>Derecha</option>
-                                                <option value="izquierda" <?php echo (($atleta['lateralidad_podal'] ?? '') == 'izquierda') ? 'selected' : ''; ?>>Izquierda</option>
-                                                <option value="ambos" <?php echo (($atleta['lateralidad_podal'] ?? '') == 'ambos') ? 'selected' : ''; ?>>Ambos</option>
+                                                <option value="Derecho" <?php echo (($atleta['lateralidad_podal'] ?? '') == 'Derecho') ? 'selected' : ''; ?>>🦶 Derecha</option>
+                                                <option value="Izquierdo" <?php echo (($atleta['lateralidad_podal'] ?? '') == 'Izquierdo') ? 'selected' : ''; ?>>🦶 Izquierda</option>
+                                                <option value="Ambidiestro" <?php echo (($atleta['lateralidad_podal'] ?? '') == 'Ambidiestro') ? 'selected' : ''; ?>>👣 Ambos</option>
                                             </select>
                                             <div class="invalid-feedback">
                                                 Selecciona la lateralidad podal
@@ -727,13 +725,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Cálculo automático del IMC
     function calcularIMC() {
-        const altura = parseFloat(document.getElementById('altura').value) || 0;
-        const peso = parseFloat(document.getElementById('peso').value) || 0;
+        console.log('🧮 Ejecutando calcularIMC...');
+        
+        const alturaInput = document.getElementById('altura');
+        const pesoInput = document.getElementById('peso');
         const imcDisplay = document.getElementById('imc-display');
+        
+        if (!alturaInput || !pesoInput || !imcDisplay) {
+            console.log('❌ No se encontraron los elementos para calcular IMC');
+            console.log('Altura:', alturaInput);
+            console.log('Peso:', pesoInput);
+            console.log('Display:', imcDisplay);
+            return;
+        }
+        
+        const altura = parseFloat(alturaInput.value) || 0;
+        const peso = parseFloat(pesoInput.value) || 0;
+        
+        console.log('📏 Valores:', { altura, peso });
         
         if (altura > 0 && peso > 0) {
             const alturaMetros = altura / 100;
             const imc = peso / (alturaMetros * alturaMetros);
+            
+            console.log('📊 IMC calculado:', imc);
             
             let categoria = '';
             let color = '';
@@ -752,18 +767,49 @@ document.addEventListener('DOMContentLoaded', function() {
                 color = 'text-danger';
             }
             
-            imcDisplay.innerHTML = `<span class="${color}"><strong>${imc.toFixed(1)}</strong> - ${categoria}</span>`;
+            const resultado = `<span class="${color}"><strong>${imc.toFixed(1)}</strong> - ${categoria}</span>`;
+            imcDisplay.innerHTML = resultado;
+            console.log('✅ IMC actualizado:', resultado);
         } else {
-            imcDisplay.innerHTML = 'Ingresa altura y peso';
+            const mensaje = '<span class="text-muted">Ingresa altura y peso válidos</span>';
+            imcDisplay.innerHTML = mensaje;
+            console.log('⚠️ Valores insuficientes para calcular IMC');
         }
     }
     
-    // Event listeners para el cálculo del IMC
-    document.getElementById('altura').addEventListener('input', calcularIMC);
-    document.getElementById('peso').addEventListener('input', calcularIMC);
-    
-    // Calcular IMC inicial
-    calcularIMC();
+    // Event listeners para el cálculo del IMC con verificación
+    setTimeout(() => {
+        const alturaInput = document.getElementById('altura');
+        const pesoInput = document.getElementById('peso');
+        const imcDisplay = document.getElementById('imc-display');
+        
+        console.log('Buscando elementos IMC...');
+        console.log('alturaInput:', alturaInput);
+        console.log('pesoInput:', pesoInput);
+        console.log('imcDisplay:', imcDisplay);
+        
+        if (alturaInput && pesoInput && imcDisplay) {
+            alturaInput.addEventListener('input', calcularIMC);
+            pesoInput.addEventListener('input', calcularIMC);
+            
+            // Calcular IMC inicial
+            calcularIMC();
+            console.log('✅ IMC listeners configurados correctamente');
+            
+            // Agregar eventos adicionales para debugging
+            alturaInput.addEventListener('input', () => {
+                console.log('Altura cambió:', alturaInput.value);
+            });
+            pesoInput.addEventListener('input', () => {
+                console.log('Peso cambió:', pesoInput.value);
+            });
+        } else {
+            console.log('❌ Error: No se encontraron todos los elementos necesarios');
+            console.log('Altura encontrado:', !!alturaInput);
+            console.log('Peso encontrado:', !!pesoInput);
+            console.log('IMC display encontrado:', !!imcDisplay);
+        }
+    }, 500);
 
     // Validación del formulario
     const form = document.getElementById('atletaForm');

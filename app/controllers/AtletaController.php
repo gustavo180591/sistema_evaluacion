@@ -136,12 +136,13 @@ class AtletaController
             // Obtener los datos actuales del atleta
             $atletaActual = Atleta::buscarPorId($id);
             
-            // Combinar los datos del formulario con los datos actuales
-            $datosActualizados = array_merge([
-                'evaluador_id' => $atletaActual['evaluador_id'],
-                'lugar_id' => $atletaActual['lugar_id'],
-                'discapacidad_id' => $atletaActual['discapacidad_id']
-            ], $_POST);
+            // Usar datos del formulario, preservando solo evaluador_id si no se envía
+            $datosActualizados = $_POST;
+            
+            // Solo preservar evaluador_id si no viene en el formulario
+            if (!isset($datosActualizados['evaluador_id'])) {
+                $datosActualizados['evaluador_id'] = $atletaActual['evaluador_id'];
+            }
             
             // Actualizar los datos del atleta
             $resultado = Atleta::actualizar($id, $datosActualizados);

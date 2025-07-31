@@ -69,6 +69,7 @@ class EvaluacionController
                 'id' => $test['id'],
                 'nombre' => $test['nombre_test'],
                 'descripcion' => $test['descripcion'],
+                'unidad_medida' => $test['unidad_medida'] ?? 'unidad',
                 'icono' => $icono
             ];
             
