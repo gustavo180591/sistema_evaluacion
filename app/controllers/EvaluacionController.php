@@ -216,8 +216,22 @@ class EvaluacionController
             $evaluacion_id = Evaluacion::crear($data);
         }
 
-        // Obtener información del test
-        $test_info = $this->obtenerInfoTest($test_id);
+        // Inicializar variables
+        $error = null;
+        
+        // Obtener información del test desde la base de datos
+        require_once __DIR__ . '/../models/Test.php';
+        $test_info = $this->obtenerInfoTestDinamico($test_id);
+        
+        // Si no se encuentra en BD, intentar el método estático como fallback
+        if (!$test_info) {
+            $test_info = $this->obtenerInfoTest($test_id);
+        }
+        
+        // Si aún no hay información del test, mostrar error
+        if (!$test_info) {
+            $error = "No se encontró información para el test solicitado (ID: $test_id)";
+        }
         
         // Obtener resultado existente si existe
         $resultado_existente = ResultadoTest::buscarPorTestYEvaluacion($test_id, $evaluacion_id);
@@ -357,6 +371,74 @@ class EvaluacionController
         ];
         
         return $tests_info[$test_id] ?? null;
+    }
+    
+    private function obtenerInfoTestDinamico($test_id)
+    {
+        // Obtener información del test desde la base de datos
+        global $pdo;
+        
+        try {
+            $stmt = $pdo->prepare("SELECT * FROM tests WHERE id = ? LIMIT 1");
+            $stmt->execute([$test_id]);
+            $test = $stmt->fetch();
+            
+            if (!$test) {
+                return null;
+            }
+            
+            // Configuración de campos por defecto basada en el tipo de test
+            $campos_basicos = [
+                'resultado_principal' => [
+                    'label' => 'Resultado Principal',
+                    'type' => 'number',
+                    'step' => '0.1',
+                    'required' => true
+                ],
+                'observaciones_adicionales' => [
+                    'label' => 'Observaciones Adicionales',
+                    'type' => 'text',
+                    'required' => false
+                ]
+            ];
+            
+            // Personalizar campos según el nombre del test
+            $nombre_test = strtolower($test['nombre_test']);
+            
+            if (strpos($nombre_test, 'fuerza') !== false) {
+                $campos_basicos = [
+                    'peso_maximo' => ['label' => 'Peso Máximo (kg)', 'type' => 'number', 'step' => '0.5', 'required' => true],
+                    'repeticiones' => ['label' => 'Repeticiones', 'type' => 'number', 'required' => true]
+                ];
+            } elseif (strpos($nombre_test, 'velocidad') !== false || strpos($nombre_test, 'tiempo') !== false) {
+                $campos_basicos = [
+                    'tiempo' => ['label' => 'Tiempo (segundos)', 'type' => 'number', 'step' => '0.01', 'required' => true]
+                ];
+            } elseif (strpos($nombre_test, 'salto') !== false || strpos($nombre_test, 'altura') !== false) {
+                $campos_basicos = [
+                    'altura_distancia' => ['label' => 'Altura/Distancia (cm)', 'type' => 'number', 'step' => '0.1', 'required' => true]
+                ];
+            } elseif (strpos($nombre_test, 'resistencia') !== false || strpos($nombre_test, 'cooper') !== false) {
+                $campos_basicos = [
+                    'distancia' => ['label' => 'Distancia (metros)', 'type' => 'number', 'required' => true],
+                    'tiempo' => ['label' => 'Tiempo (minutos)', 'type' => 'number', 'step' => '0.1', 'required' => true]
+                ];
+            } elseif (strpos($nombre_test, 'flexibilidad') !== false) {
+                $campos_basicos = [
+                    'rango_distancia' => ['label' => 'Rango/Distancia (cm)', 'type' => 'number', 'step' => '0.1', 'required' => true]
+                ];
+            }
+            
+            return [
+                'nombre' => $test['nombre_test'],
+                'descripcion' => $test['descripcion'] ?? 'Test físico',
+                'campos' => $campos_basicos
+            ];
+            
+        } catch (Exception $e) {
+            error_log("Error en obtenerInfoTestDinamico: " . $e->getMessage());
+            return null;
+        }
     }
     
     public function guardarTestAjax()
@@ -548,23 +630,10 @@ class EvaluacionController
             exit;
         }
 
-        // Asegurar que evaluador_id esté presente en sesión
-        if (!isset($_SESSION['evaluador_id'])) {
-            require_once __DIR__ . '/../models/Evaluador.php';
-            global $pdo;
-            $stmt = $pdo->prepare("SELECT email FROM usuarios WHERE id = ? LIMIT 1");
-            $stmt->execute([$_SESSION['usuario_id']]);
-            $user = $stmt->fetch();
-            if ($user) {
-                $evaluador = Evaluador::obtenerPorEmail($user['email']);
-                if ($evaluador) {
-                    $_SESSION['evaluador_id'] = $evaluador['id'];
-                }
-            }
-        }
-
+        // PERMISOS AMPLIOS: Mostrar todas las evaluaciones del sistema
+        // Cualquier evaluador puede ver todas las evaluaciones
         require_once __DIR__ . '/../models/Evaluacion.php';
-        $evaluaciones = Evaluacion::porEvaluador($_SESSION['evaluador_id']);
+        $evaluaciones = Evaluacion::todos();
 
         require_once __DIR__ . '/../views/evaluaciones/listado.php';
     }
@@ -607,6 +676,71 @@ class EvaluacionController
                 exit;
             } catch (Exception $e) {
                 header('Location: index.php?controller=Evaluacion&action=ver&id=' . $evaluacion_id . '&error=finalizar');
+                exit;
+            }
+        }
+
+        header('Location: index.php?controller=Evaluacion&action=listado');
+        exit;
+    }
+
+    public function actualizarAmbiental()
+    {
+        // Verificar sesión de evaluador
+        if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] !== 'evaluador') {
+            header('Location: index.php?controller=Dashboard&action=index');
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $evaluacion_id = $_POST['evaluacion_id'] ?? null;
+            $lugar_id = $_POST['lugar_id'] ?? null;
+            $clima = $_POST['clima'] ?? null;
+            $temperatura_ambiente = $_POST['temperatura_ambiente'] ?? null;
+
+            if (!$evaluacion_id) {
+                header('Location: index.php?controller=Evaluacion&action=listado&error=missing_id');
+                exit;
+            }
+
+            require_once __DIR__ . '/../models/Evaluacion.php';
+
+            // Verificar que la evaluación existe
+            $evaluacion = Evaluacion::porId($evaluacion_id);
+            if (!$evaluacion) {
+                header('Location: index.php?controller=Evaluacion&action=listado&error=not_found');
+                exit;
+            }
+
+            // Preparar datos para actualizar
+            $data = [];
+            
+            // Actualizar clima si se especificó
+            if (!empty($clima)) {
+                $data['clima'] = $clima;
+            }
+            
+            // Actualizar temperatura si se especificó
+            if (!empty($temperatura_ambiente) && is_numeric($temperatura_ambiente)) {
+                $data['temperatura_ambiente'] = floatval($temperatura_ambiente);
+            }
+
+            // NOTA: Por ahora no actualizamos lugar_id porque no existe en la tabla evaluaciones
+            // El lugar se maneja a través del atleta. Si se requiere lugar específico por evaluación,
+            // sería necesario agregar una migración para el campo lugar_id en evaluaciones.
+
+            try {
+                // Solo actualizar si hay datos para cambiar
+                if (!empty($data)) {
+                    Evaluacion::actualizar($evaluacion_id, $data);
+                    header('Location: index.php?controller=Evaluacion&action=ver&id=' . $evaluacion_id . '&success=ambiental_updated');
+                } else {
+                    header('Location: index.php?controller=Evaluacion&action=ver&id=' . $evaluacion_id . '&info=no_changes');
+                }
+                exit;
+            } catch (Exception $e) {
+                error_log("Error actualizando clima y temperatura: " . $e->getMessage());
+                header('Location: index.php?controller=Evaluacion&action=ver&id=' . $evaluacion_id . '&error=update_failed');
                 exit;
             }
         }

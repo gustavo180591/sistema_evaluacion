@@ -5,7 +5,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h2>👥 Todos los Atletas</h2>
-      <p class="text-muted">Listado completo de atletas registrados en el sistema</p>
+      <p class="text-muted">Listado completo de atletas registrados en el sistema. Puedes <strong>evaluar</strong>, <strong>editar información</strong> y <strong>ver historial</strong> de cualquier atleta.</p>
       
       <?php 
       // Verificar si se necesita ejecutar migración

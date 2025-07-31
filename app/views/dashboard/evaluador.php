@@ -12,7 +12,7 @@
     <div class="dashboard-card">
       <div class="icon">👥</div>
       <h3>Gestión de Atletas</h3>
-      <p>Administra la información de tus atletas asignados</p>
+      <p>Administra la información de todos los atletas del sistema</p>
       <div class="mt-2">
         <a href="index.php?controller=Atleta&action=listado" class="btn btn-primary">Ver Atletas</a>
         <a href="index.php?controller=Atleta&action=crear" class="btn btn-success">+ Nuevo</a>
@@ -23,7 +23,7 @@
     <div class="dashboard-card">
       <div class="icon">📋</div>
       <h3>Nueva Evaluación</h3>
-      <p>Crea una nueva sesión de evaluación completa</p>
+      <p>Crea una nueva sesión de evaluación para cualquier atleta</p>
       <div class="mt-2">
         <a href="index.php?controller=Test&action=nuevaEvaluacion" class="btn btn-success">➕ Crear Evaluación</a>
       </div>
@@ -32,10 +32,10 @@
     <!-- Ver Evaluaciones -->
     <div class="dashboard-card">
       <div class="icon">📊</div>
-      <h3>Mis Evaluaciones</h3>
-      <p>Revisa y gestiona las evaluaciones realizadas</p>
+      <h3>Evaluaciones</h3>
+      <p>Revisa y gestiona todas las evaluaciones del sistema</p>
       <div class="mt-2">
-        <a href="index.php?controller=Test&action=resultados" class="btn btn-primary">Ver Evaluaciones</a>
+        <a href="index.php?controller=Evaluacion&action=listado" class="btn btn-primary">Ver Evaluaciones</a>
       </div>
     </div>
 
@@ -53,7 +53,7 @@
     <div class="dashboard-card">
       <div class="icon">📈</div>
       <h3>Reportes y Análisis</h3>
-      <p>Visualiza estadísticas y progreso de atletas</p>
+      <p>Visualiza estadísticas y progreso de todos los atletas</p>
       <div class="mt-2">
         <a href="index.php?controller=Reporte&action=estadisticas" class="btn btn-primary">Estadísticas</a>
         <a href="index.php?controller=Reporte&action=exportar" class="btn btn-success">Exportar</a>

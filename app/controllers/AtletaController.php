@@ -129,11 +129,8 @@ class AtletaController
 
         require_once __DIR__ . '/../models/Atleta.php';
 
-        // Verificar que el atleta pertenezca al evaluador
-        if (!Atleta::verificarPertenenciaEvaluador($id, $_SESSION['usuario_id'])) {
-            header('Location: index.php?controller=Atleta&action=listado');
-            exit;
-        }
+        // PERMISOS AMPLIOS: Cualquier evaluador puede editar cualquier atleta
+        // Se removió la verificación de pertenencia para permitir edición flexible
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Obtener los datos actuales del atleta

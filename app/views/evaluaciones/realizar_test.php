@@ -1,4 +1,5 @@
 <?php require_once __DIR__ . '/../layout/header.php'; ?>
+<?php require_once __DIR__ . '/../componentes/navbar.php'; ?>
 
 <div class="container-fluid">
     <div class="row">
@@ -8,7 +9,8 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h4 class="mb-0">
-                                <i class="fas fa-clipboard-check"></i> <?php echo htmlspecialchars($test_info['nombre']); ?>
+                                <i class="fas fa-clipboard-check"></i> 
+                                <?php echo htmlspecialchars($test_info['nombre'] ?? 'Test Físico'); ?>
                             </h4>
                             <small>Atleta: <?php echo htmlspecialchars($atleta['nombre'] . ' ' . $atleta['apellido']); ?></small>
                         </div>
@@ -24,12 +26,27 @@
                             <i class="fas fa-exclamation-triangle"></i> <?php echo htmlspecialchars($error); ?>
                         </div>
                     <?php endif; ?>
+                    
+                    <?php if (!$test_info): ?>
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i> 
+                            <strong>Error:</strong> No se pudo cargar la información del test solicitado.
+                        </div>
+                        <div class="text-center">
+                            <a href="index.php?controller=Atleta&action=listado" class="btn btn-primary">
+                                <i class="fas fa-arrow-left"></i> Volver al listado de atletas
+                            </a>
+                        </div>
+                    <?php else: ?>
+                    
 
                     <div class="row">
                         <div class="col-md-8">
                             <div class="test-description mb-4">
                                 <h5><i class="fas fa-info-circle text-primary"></i> Descripción del Test</h5>
-                                <p class="text-muted"><?php echo htmlspecialchars($test_info['descripcion']); ?></p>
+                                <p class="text-muted">
+                                    <?php echo htmlspecialchars($test_info['descripcion'] ?? 'Descripción del test no disponible'); ?>
+                                </p>
                             </div>
 
                             <form method="POST" class="needs-validation" novalidate>
@@ -43,7 +60,8 @@
                                     }
                                     ?>
                                     
-                                    <?php foreach ($test_info['campos'] as $campo => $config): ?>
+                                    <?php if (isset($test_info['campos']) && is_array($test_info['campos'])): ?>
+                                        <?php foreach ($test_info['campos'] as $campo => $config): ?>
                                         <div class="form-group">
                                             <label for="<?php echo $campo; ?>">
                                                 <i class="fas fa-ruler"></i> <?php echo htmlspecialchars($config['label']); ?>
@@ -61,7 +79,13 @@
                                                 Por favor ingresa un valor válido.
                                             </div>
                                         </div>
-                                    <?php endforeach; ?>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            No se encontró información de campos para este test.
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
 
                                 <div class="form-section">
@@ -122,6 +146,8 @@
         </div>
     </div>
 </div>
+
+<?php endif; ?>
 
 <style>
 .card-header {

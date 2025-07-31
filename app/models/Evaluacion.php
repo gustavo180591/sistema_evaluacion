@@ -64,18 +64,28 @@ class Evaluacion
     public static function actualizar($id, $data)
     {
         global $pdo;
-        $stmt = $pdo->prepare("UPDATE evaluaciones SET 
-            hora_fin = ?, estado = ?, observaciones = ?, clima = ?, temperatura_ambiente = ?
-            WHERE id = ?");
-
-        return $stmt->execute([
-            $data['hora_fin'] ?? null,
-            $data['estado'] ?? 'completada',
-            $data['observaciones'] ?? null,
-            $data['clima'] ?? null,
-            $data['temperatura_ambiente'] ?? null,
-            $id
-        ]);
+        
+        // Construir la query dinámicamente basándose en los datos proporcionados
+        $campos_permitidos = ['hora_fin', 'estado', 'observaciones', 'clima', 'temperatura_ambiente', 'lugar_id'];
+        $campos_actualizar = [];
+        $valores = [];
+        
+        foreach ($data as $campo => $valor) {
+            if (in_array($campo, $campos_permitidos)) {
+                $campos_actualizar[] = "$campo = ?";
+                $valores[] = $valor;
+            }
+        }
+        
+        if (empty($campos_actualizar)) {
+            return false; // No hay campos válidos para actualizar
+        }
+        
+        $sql = "UPDATE evaluaciones SET " . implode(', ', $campos_actualizar) . " WHERE id = ?";
+        $valores[] = $id;
+        
+        $stmt = $pdo->prepare($sql);
+        return $stmt->execute($valores);
     }
 
     public static function obtenerResultados($evaluacion_id)
@@ -126,11 +136,14 @@ class Evaluacion
     {
         global $pdo;
         $stmt = $pdo->query("SELECT e.*, a.nombre, a.apellido, l.nombre AS lugar_nombre,
-            COUNT(rt.id) as total_tests
+            COUNT(rt.id) as total_tests,
+            ev.nombre AS evaluador_nombre, ev.apellido AS evaluador_apellido,
+            ev.email AS evaluador_email
             FROM evaluaciones e
             JOIN atletas a ON e.atleta_id = a.id
-            LEFT JOIN lugares l ON e.lugar_id = l.id
+            LEFT JOIN lugares l ON a.lugar_id = l.id
             LEFT JOIN resultados_tests rt ON e.id = rt.evaluacion_id
+            LEFT JOIN evaluadores ev ON e.evaluador_id = ev.id
             GROUP BY e.id
             ORDER BY e.fecha_evaluacion DESC");
         return $stmt->fetchAll();

@@ -96,74 +96,122 @@ class Atleta
     {
         global $pdo;
         
-        // Por ahora asignamos lugar_id = 1 por defecto
-        // En el futuro se puede mejorar para que el evaluador tenga un lugar asignado
-        $lugar_id = 1;
+        // Usar lugar_id del formulario o 1 por defecto
+        $lugar_id = $data['lugar_id'] ?? 1;
+        
+        // Convertir sexo al formato de BD
+        $sexo = $data['sexo'] ?? '';
+        if (strtolower($sexo) === 'masculino') {
+            $sexo = 'M';
+        } elseif (strtolower($sexo) === 'femenino') {
+            $sexo = 'F';
+        }
         
         // Verificar si el campo activo existe
         $checkStmt = $pdo->query("SHOW COLUMNS FROM atletas LIKE 'activo'");
         $campoActivoExiste = $checkStmt->rowCount() > 0;
         
-        if ($campoActivoExiste) {
-            $stmt = $pdo->prepare("INSERT INTO atletas (
-                evaluador_id, lugar_id, nombre, apellido, dni, sexo, fecha_nacimiento,
-                altura_cm, peso_kg, envergadura_cm, altura_sentado_cm,
-                lateralidad_visual, lateralidad_podal, discapacidad_id, fecha_registro, activo
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), TRUE)");
-        } else {
-            $stmt = $pdo->prepare("INSERT INTO atletas (
-                evaluador_id, lugar_id, nombre, apellido, dni, sexo, fecha_nacimiento,
-                altura_cm, peso_kg, envergadura_cm, altura_sentado_cm,
-                lateralidad_visual, lateralidad_podal, discapacidad_id, fecha_registro
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
-        }
-
-        return $stmt->execute([
+        // Campos básicos que siempre estarán presentes
+        $campos_basicos = [
+            'evaluador_id', 'lugar_id', 'nombre', 'apellido', 'dni', 'sexo',
+            'edad', 'nacionalidad', 'altura', 'peso', 
+            'lateralidad_visual', 'lateralidad_podal', 'fecha_registro'
+        ];
+        
+        $valores_basicos = [
             $evaluador_id,
             $lugar_id,
             $data['nombre'],
             $data['apellido'],
             $data['dni'],
-            $data['sexo'],
-            $data['fecha_nacimiento'],
-            $data['altura_cm'],
-            $data['peso_kg'],
-            $data['envergadura_cm'],
-            $data['altura_sentado_cm'],
+            $sexo,
+            $data['edad'],
+            $data['nacionalidad'] ?? null,
+            $data['altura'],
+            $data['peso'],
             $data['lateralidad_visual'],
             $data['lateralidad_podal'],
-            $data['discapacidad_id']
-        ]);
+            'NOW()'
+        ];
+        
+        // Agregar discapacidad_id si está presente
+        if (isset($data['discapacidad_id']) && !empty($data['discapacidad_id'])) {
+            $campos_basicos[] = 'discapacidad_id';
+            $valores_basicos[] = $data['discapacidad_id'];
+        }
+        
+        // Agregar campo activo si existe
+        if ($campoActivoExiste) {
+            $campos_basicos[] = 'activo';
+            $valores_basicos[] = true;
+        }
+        
+        // Construir la query
+        $placeholders = str_repeat('?,', count($valores_basicos) - 1) . 'NOW()';
+        $valores_execute = array_slice($valores_basicos, 0, -1); // Remover 'NOW()' para execute
+        
+        $sql = "INSERT INTO atletas (" . implode(', ', $campos_basicos) . ") VALUES ($placeholders)";
+        $stmt = $pdo->prepare($sql);
+        
+        return $stmt->execute($valores_execute);
     }
 
     public static function actualizar($id, $data)
     {
         global $pdo;
         
-        $stmt = $pdo->prepare("UPDATE atletas SET 
-            evaluador_id = ?, lugar_id = ?, nombre = ?, apellido = ?, dni = ?, sexo = ?, 
-            fecha_nacimiento = ?, altura_cm = ?, peso_kg = ?, envergadura_cm = ?, 
-            altura_sentado_cm = ?, lateralidad_visual = ?, lateralidad_podal = ?,
-            discapacidad_id = ?
-            WHERE id = ?");
-
-        return $stmt->execute([
-            $data['evaluador_id'],
-            $data['lugar_id'],
-            $data['nombre'],
-            $data['apellido'],
-            $data['dni'],
-            $data['sexo'],
-            $data['fecha_nacimiento'],
-            $data['altura_cm'],
-            $data['peso_kg'],
-            $data['envergadura_cm'],
-            $data['altura_sentado_cm'],
-            $data['lateralidad_visual'],
-            $data['lateralidad_podal'],
-            $data['discapacidad_id'],
-            $id
-        ]);
+        // Mapear los campos del formulario a los campos de la base de datos
+        $campos = [];
+        $valores = [];
+        
+        // Campos opcionales que pueden o no estar presentes
+        $camposPermitidos = [
+            'evaluador_id' => 'evaluador_id',
+            'lugar_id' => 'lugar_id', 
+            'nombre' => 'nombre',
+            'apellido' => 'apellido',
+            'dni' => 'dni',
+            'sexo' => 'sexo',
+            'edad' => 'edad',
+            'nacionalidad' => 'nacionalidad',
+            'altura' => 'altura', // Mapear altura a altura (no altura_cm)
+            'peso' => 'peso', // Mapear peso a peso (no peso_kg)
+            'lateralidad_visual' => 'lateralidad_visual',
+            'lateralidad_podal' => 'lateralidad_podal',
+            'discapacidad_id' => 'discapacidad_id'
+        ];
+        
+        // Construir la query dinámicamente solo con los campos presentes
+        foreach ($camposPermitidos as $campoFormulario => $campoBD) {
+            if (isset($data[$campoFormulario])) {
+                $campos[] = "$campoBD = ?";
+                
+                // Conversión especial para el campo sexo
+                if ($campoFormulario === 'sexo') {
+                    // Convertir formato completo a formato de BD si es necesario
+                    $sexo = strtolower($data[$campoFormulario]);
+                    if ($sexo === 'masculino') {
+                        $valores[] = 'M';
+                    } elseif ($sexo === 'femenino') {
+                        $valores[] = 'F';
+                    } else {
+                        $valores[] = $data[$campoFormulario];
+                    }
+                } else {
+                    $valores[] = $data[$campoFormulario];
+                }
+            }
+        }
+        
+        if (empty($campos)) {
+            return false; // No hay campos para actualizar
+        }
+        
+        $sql = "UPDATE atletas SET " . implode(', ', $campos) . " WHERE id = ?";
+        $valores[] = $id;
+        
+        $stmt = $pdo->prepare($sql);
+        return $stmt->execute($valores);
     }
 
     public static function buscarPorId($id)

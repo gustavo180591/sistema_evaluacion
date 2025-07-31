@@ -1,4 +1,5 @@
 <?php require_once __DIR__ . '/../layout/header.php'; ?>
+<?php require_once __DIR__ . '/../componentes/navbar.php'; ?>
 
 <div class="container-fluid py-4">
     <div class="row">
@@ -26,6 +27,52 @@
                         <div>
                             <h5 class="alert-heading mb-1">¡Error!</h5>
                             <p class="mb-0">No se pudo finalizar la evaluación. Inténtalo de nuevo.</p>
+                        </div>
+                    </div>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            <?php endif; ?>
+
+            <!-- Mensajes para actualización de información ambiental -->
+            <?php if (isset($_GET['success']) && $_GET['success'] == 'ambiental_updated'): ?>
+                <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle fa-lg mr-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">¡Actualizado!</h5>
+                                                         <p class="mb-0">La información de clima y temperatura de la evaluación se ha actualizado correctamente.</p>
+                        </div>
+                    </div>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            <?php endif; ?>
+
+            <?php if (isset($_GET['info']) && $_GET['info'] == 'no_changes'): ?>
+                <div class="alert alert-info alert-dismissible fade show shadow-sm" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-info-circle fa-lg mr-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">Sin cambios</h5>
+                                                         <p class="mb-0">No se realizaron cambios en el clima y temperatura.</p>
+                        </div>
+                    </div>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            <?php endif; ?>
+
+            <?php if (isset($_GET['error']) && $_GET['error'] == 'update_failed'): ?>
+                <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle fa-lg mr-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">¡Error!</h5>
+                                                         <p class="mb-0">No se pudo actualizar el clima y temperatura. Inténtalo de nuevo.</p>
                         </div>
                     </div>
                     <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
@@ -67,8 +114,29 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 col-lg-3 mb-3">
+                    <!-- Botón para editar información ambiental -->
+                    <div class="d-flex justify-content-end mb-3">
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="btnEditarAmbiental" onclick="toggleEditAmbiental()">
+                            <i class="fas fa-edit"></i> Editar Clima y Temperatura
+                        </button>
+                    </div>
+
+                    <!-- Vista normal (solo lectura) -->
+                    <div id="infoAmbiental" class="row">
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="bg-light p-3 rounded-lg h-100">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-circle bg-soft-success text-success mr-3">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 text-muted small">Lugar</h6>
+                                        <p class="mb-0 font-weight-bold"><?php echo htmlspecialchars($evaluacion['lugar_nombre'] ?? 'No especificado'); ?></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-4 mb-3">
                             <div class="bg-light p-3 rounded-lg h-100">
                                 <div class="d-flex align-items-center">
                                     <div class="icon-circle bg-soft-primary text-primary mr-3">
@@ -81,7 +149,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="col-md-6 col-lg-4 mb-3">
                             <div class="bg-light p-3 rounded-lg h-100">
                                 <div class="d-flex align-items-center">
                                     <div class="icon-circle bg-soft-info text-info mr-3">
@@ -97,8 +165,87 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Formulario de edición (oculto por defecto) -->
+                    <div id="formAmbiental" class="d-none">
+                        <form method="POST" action="index.php?controller=Evaluacion&action=actualizarAmbiental" class="needs-validation" novalidate>
+                            <input type="hidden" name="evaluacion_id" value="<?php echo $evaluacion['id']; ?>">
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-semibold">
+                                        <i class="fas fa-map-marker-alt me-1"></i> Lugar de Evaluación
+                                    </label>
+                                    <div class="form-control bg-light">
+                                        <?php echo htmlspecialchars($evaluacion['lugar_nombre'] ?? 'No especificado'); ?>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        <i class="fas fa-info-circle"></i> El lugar se establece según el atleta. 
+                                        <div class="mt-1">
+                                            <a href="index.php?controller=Atleta&action=editar&id=<?php echo $evaluacion['atleta_id']; ?>" class="text-primary">
+                                                <i class="fas fa-edit"></i> Editar este atleta directamente
+                                            </a>
+                                            <span class="mx-2">•</span>
+                                            <a href="index.php?controller=Atleta&action=listado" class="text-primary">
+                                                <i class="fas fa-list"></i> Ver listado de atletas
+                                            </a>
+                                        </div>
+                                    </small>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="clima" class="form-label fw-semibold">
+                                        <i class="fas fa-cloud-sun me-1"></i> Condiciones Climáticas
+                                    </label>
+                                    <select class="form-control" id="clima" name="clima">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="soleado" <?php echo ($evaluacion['clima'] == 'soleado') ? 'selected' : ''; ?>>☀️ Soleado</option>
+                                        <option value="nublado" <?php echo ($evaluacion['clima'] == 'nublado') ? 'selected' : ''; ?>>☁️ Nublado</option>
+                                        <option value="parcialmente_nublado" <?php echo ($evaluacion['clima'] == 'parcialmente_nublado') ? 'selected' : ''; ?>>⛅ Parcialmente Nublado</option>
+                                        <option value="lluvioso" <?php echo ($evaluacion['clima'] == 'lluvioso') ? 'selected' : ''; ?>>🌧️ Lluvioso</option>
+                                        <option value="ventoso" <?php echo ($evaluacion['clima'] == 'ventoso') ? 'selected' : ''; ?>>💨 Ventoso</option>
+                                        <option value="caluroso" <?php echo ($evaluacion['clima'] == 'caluroso') ? 'selected' : ''; ?>>🔥 Caluroso</option>
+                                        <option value="frio" <?php echo ($evaluacion['clima'] == 'frio') ? 'selected' : ''; ?>>🌡️ Frío</option>
+                                    </select>
+                                    <small class="form-text text-muted">
+                                        Condiciones climáticas durante la evaluación
+                                    </small>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="temperatura_ambiente" class="form-label fw-semibold">
+                                        <i class="fas fa-thermometer-half me-1"></i> Temperatura Ambiente (°C)
+                                    </label>
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="temperatura_ambiente" 
+                                           name="temperatura_ambiente" 
+                                           min="-10" 
+                                           max="50" 
+                                           step="0.1"
+                                           value="<?php echo htmlspecialchars($evaluacion['temperatura_ambiente'] ?? ''); ?>"
+                                           placeholder="Ej: 22.5">
+                                    <small class="form-text text-muted">
+                                        Temperatura en grados Celsius
+                                    </small>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-end gap-2 mt-3">
+                                <button type="button" class="btn btn-secondary" onclick="cancelarEditAmbiental()">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </button>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save"></i> Guardar Cambios
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="row">
                         <?php if ($evaluacion['hora_fin']): ?>
-                        <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="col-md-6 col-lg-4 mb-3">
                             <div class="bg-light p-3 rounded-lg h-100">
                                 <div class="d-flex align-items-center">
                                     <div class="icon-circle bg-soft-success text-success mr-3">
@@ -323,6 +470,91 @@ body {
 .table td {
     vertical-align: middle;
 }
+
+/* Formulario de edición ambiental */
+.form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.form-control {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.gap-2 {
+    gap: 0.5rem !important;
+}
+
+.bg-soft-primary { background-color: rgba(0, 123, 255, 0.1); }
+.bg-soft-success { background-color: rgba(40, 167, 69, 0.1); }
+.bg-soft-info { background-color: rgba(23, 162, 184, 0.1); }
 </style>
+
+<script>
+function toggleEditAmbiental() {
+    const infoDiv = document.getElementById('infoAmbiental');
+    const formDiv = document.getElementById('formAmbiental');
+    const btnEditar = document.getElementById('btnEditarAmbiental');
+    
+    if (infoDiv.classList.contains('d-none')) {
+        // Mostrar vista normal, ocultar formulario
+        infoDiv.classList.remove('d-none');
+        formDiv.classList.add('d-none');
+        btnEditar.innerHTML = '<i class="fas fa-edit"></i> Editar Clima y Temperatura';
+    } else {
+        // Mostrar formulario, ocultar vista normal
+        infoDiv.classList.add('d-none');
+        formDiv.classList.remove('d-none');
+        btnEditar.innerHTML = '<i class="fas fa-eye"></i> Ver Información';
+    }
+}
+
+function cancelarEditAmbiental() {
+    const infoDiv = document.getElementById('infoAmbiental');
+    const formDiv = document.getElementById('formAmbiental');
+    const btnEditar = document.getElementById('btnEditarAmbiental');
+    
+    // Mostrar vista normal, ocultar formulario
+    infoDiv.classList.remove('d-none');
+    formDiv.classList.add('d-none');
+    btnEditar.innerHTML = '<i class="fas fa-edit"></i> Editar Clima y Temperatura';
+    
+    // Resetear formulario a valores originales
+    const form = formDiv.querySelector('form');
+    form.reset();
+    
+    // Restaurar valores seleccionados
+    <?php if ($evaluacion['clima']): ?>
+    document.getElementById('clima').value = '<?php echo $evaluacion['clima']; ?>';
+    <?php endif; ?>
+    
+    <?php if ($evaluacion['temperatura_ambiente']): ?>
+    document.getElementById('temperatura_ambiente').value = '<?php echo $evaluacion['temperatura_ambiente']; ?>';
+    <?php endif; ?>
+}
+
+// Validación del formulario
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('#formAmbiental form');
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        });
+    }
+});
+</script>
 
 <?php require_once __DIR__ . '/../layout/footer.php'; ?> 

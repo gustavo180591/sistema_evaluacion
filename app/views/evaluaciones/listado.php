@@ -1,4 +1,5 @@
 <?php require_once __DIR__ . '/../layout/header.php'; ?>
+<?php require_once __DIR__ . '/../componentes/navbar.php'; ?>
 
 <div class="container-fluid">
     <div class="row">
@@ -8,7 +9,7 @@
                 <div class="alert alert-danger alert-dismissible fade show">
                     <i class="fas fa-exclamation-triangle"></i>
                     <?php if ($_GET['error'] == 'evaluacion_no_autorizada'): ?>
-                        No tienes permisos para acceder a esa evaluación.
+                        Ha ocurrido un error al acceder a la evaluación.
                     <?php else: ?>
                         Ha ocurrido un error.
                     <?php endif; ?>
@@ -20,7 +21,7 @@
                 <div class="card-header bg-primary text-white">
                     <div class="d-flex justify-content-between align-items-center">
                         <h4 class="mb-0">
-                            <i class="fas fa-clipboard-list"></i> Mis Evaluaciones
+                            <i class="fas fa-clipboard-list"></i> Evaluaciones del Sistema
                         </h4>
                         <a href="index.php?controller=Atleta&action=listado" class="btn btn-success">
                             <i class="fas fa-plus"></i> Nueva Evaluación
@@ -32,7 +33,7 @@
                         <div class="text-center py-5">
                             <i class="fas fa-clipboard-list fa-4x text-muted"></i>
                             <h4 class="mt-4 text-muted">No hay evaluaciones registradas</h4>
-                            <p class="text-muted">Comienza creando una nueva evaluación para uno de tus atletas.</p>
+                            <p class="text-muted">Comienza creando una nueva evaluación para cualquier atleta del sistema.</p>
                             <a href="index.php?controller=Atleta&action=listado" class="btn btn-primary btn-lg">
                                 <i class="fas fa-plus"></i> Crear Primera Evaluación
                             </a>
@@ -43,6 +44,7 @@
                                 <thead>
                                     <tr>
                                         <th>Atleta</th>
+                                        <th>Evaluador</th>
                                         <th>Fecha</th>
                                         <th>Lugar</th>
                                         <th>Estado</th>
@@ -56,6 +58,19 @@
                                         <tr>
                                             <td>
                                                 <strong><?php echo htmlspecialchars($evaluacion['nombre'] . ' ' . $evaluacion['apellido']); ?></strong>
+                                            </td>
+                                            <td>
+                                                <?php if (!empty($evaluacion['evaluador_nombre'])): ?>
+                                                    <strong><?php echo htmlspecialchars($evaluacion['evaluador_nombre'] . ' ' . $evaluacion['evaluador_apellido']); ?></strong>
+                                                    <br><small class="text-muted">
+                                                        <i class="fas fa-envelope"></i>
+                                                        <?php echo htmlspecialchars($evaluacion['evaluador_email']); ?>
+                                                    </small>
+                                                <?php else: ?>
+                                                    <span class="text-warning">
+                                                        <i class="fas fa-exclamation-triangle"></i> Sin evaluador asignado
+                                                    </span>
+                                                <?php endif; ?>
                                             </td>
                                             <td>
                                                 <span class="text-nowrap">
