@@ -26,6 +26,11 @@
       <a href="index.php?controller=Admin&action=tests"><button>Gestionar tests</button></a>
     </div>
     <div class="card">
+      <h3>📋 Nueva Evaluación</h3>
+      <p>Crear evaluación completa con atleta y configuración.</p>
+      <a href="index.php?controller=Evaluacion&action=crearCompleta"><button>Crear Evaluación</button></a>
+    </div>
+    <div class="card">
       <h3>⚙️ Configuración</h3>
       <p>Configuración general del sistema y parámetros.</p>
       <a href="index.php?controller=Admin&action=configuracion"><button>Configuración</button></a>

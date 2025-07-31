@@ -25,7 +25,7 @@
       <h3>Nueva Evaluación</h3>
       <p>Crea una nueva sesión de evaluación para cualquier atleta</p>
       <div class="mt-2">
-        <a href="index.php?controller=Test&action=nuevaEvaluacion" class="btn btn-success">➕ Crear Evaluación</a>
+        <a href="index.php?controller=Evaluacion&action=crearCompleta" class="btn btn-success">➕ Crear Evaluación</a>
       </div>
     </div>
 

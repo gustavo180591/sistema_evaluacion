@@ -620,6 +620,108 @@ class EvaluacionController
         // Obtener resultados de tests de esta evaluación
         $resultados = Evaluacion::obtenerResultados($evaluacion_id);
         
+        // MEJORAS INTELIGENTES: Obtener datos adicionales para vista enriquecida
+        require_once __DIR__ . '/../models/Atleta.php';
+        require_once __DIR__ . '/../models/ResultadoTest.php';
+        
+        // Obtener información completa del atleta
+        $atleta = Atleta::buscarPorId($evaluacion['atleta_id']);
+        
+        // Obtener evaluaciones anteriores del atleta para comparación
+        $evaluacionesAnteriores = [];
+        if ($atleta) {
+            global $pdo;
+            $stmt = $pdo->prepare("
+                SELECT e.*, 
+                       COUNT(rt.id) as total_tests,
+                       DATE(e.fecha_evaluacion) as fecha_solo
+                FROM evaluaciones e
+                LEFT JOIN resultados_tests rt ON e.id = rt.evaluacion_id
+                WHERE e.atleta_id = ? AND e.id != ? AND e.estado = 'completada'
+                GROUP BY e.id
+                ORDER BY e.fecha_evaluacion DESC
+                LIMIT 5
+            ");
+            $stmt->execute([$evaluacion['atleta_id'], $evaluacion_id]);
+            $evaluacionesAnteriores = $stmt->fetchAll();
+        }
+        
+        // Calcular estadísticas de la evaluación actual
+        $estadisticas = [
+            'total_tests' => count($resultados),
+            'tests_completados' => count(array_filter($resultados, function($r) {
+                return !empty($r['resultado_json']);
+            })),
+            'duracion_estimada' => null,
+            'categorias' => []
+        ];
+        
+        // Calcular duración si tiene hora de inicio y fin
+        if ($evaluacion['hora_inicio'] && $evaluacion['hora_fin']) {
+            $inicio = new DateTime($evaluacion['fecha_evaluacion'] . ' ' . $evaluacion['hora_inicio']);
+            $fin = new DateTime($evaluacion['fecha_evaluacion'] . ' ' . $evaluacion['hora_fin']);
+            $duracion = $inicio->diff($fin);
+            $estadisticas['duracion_estimada'] = $duracion->format('%H:%I');
+        }
+        
+        // Categorizar tests por tipo
+        $categorias_tests = [
+            'antropometria' => [],
+            'fuerza' => [],
+            'resistencia' => [],
+            'flexibilidad' => [],
+            'velocidad' => [],
+            'otros' => []
+        ];
+        
+        foreach ($resultados as $resultado) {
+            $nombre_test = strtolower($resultado['nombre_test']);
+            if (strpos($nombre_test, 'talla') !== false || strpos($nombre_test, 'envergadura') !== false || strpos($nombre_test, 'peso') !== false || strpos($nombre_test, 'altura') !== false) {
+                $categorias_tests['antropometria'][] = $resultado;
+            } elseif (strpos($nombre_test, 'fuerza') !== false || strpos($nombre_test, 'salto') !== false || strpos($nombre_test, 'prensa') !== false) {
+                $categorias_tests['fuerza'][] = $resultado;
+            } elseif (strpos($nombre_test, 'resistencia') !== false || strpos($nombre_test, 'cooper') !== false || strpos($nombre_test, 'navette') !== false || strpos($nombre_test, 'cardio') !== false) {
+                $categorias_tests['resistencia'][] = $resultado;
+            } elseif (strpos($nombre_test, 'flexibilidad') !== false || strpos($nombre_test, 'sit and reach') !== false) {
+                $categorias_tests['flexibilidad'][] = $resultado;
+            } elseif (strpos($nombre_test, 'velocidad') !== false || strpos($nombre_test, '30m') !== false || strpos($nombre_test, 'sprint') !== false) {
+                $categorias_tests['velocidad'][] = $resultado;
+            } else {
+                $categorias_tests['otros'][] = $resultado;
+            }
+        }
+        
+        $estadisticas['categorias'] = $categorias_tests;
+        
+        // Obtener recomendaciones basadas en resultados
+        $recomendaciones = [];
+        if ($estadisticas['tests_completados'] >= 3) {
+            $recomendaciones[] = [
+                'tipo' => 'info',
+                'icono' => 'chart-line',
+                'titulo' => 'Evaluación Completa',
+                'mensaje' => 'La evaluación cuenta con ' . $estadisticas['tests_completados'] . ' tests completados, suficientes para generar un informe detallado.'
+            ];
+        }
+        
+        if (empty($categorias_tests['antropometria']) && $estadisticas['tests_completados'] > 0) {
+            $recomendaciones[] = [
+                'tipo' => 'warning',
+                'icono' => 'ruler-vertical',
+                'titulo' => 'Tests Antropométricos Faltantes',
+                'mensaje' => 'Considera agregar mediciones antropométricas (talla, peso, envergadura) para una evaluación más completa.'
+            ];
+        }
+        
+        if ($evaluacion['estado'] !== 'completada' && $estadisticas['tests_completados'] >= 5) {
+            $recomendaciones[] = [
+                'tipo' => 'success',
+                'icono' => 'check-circle',
+                'titulo' => 'Lista para Finalizar',
+                'mensaje' => 'La evaluación tiene suficientes tests completados. Puedes marcarla como finalizada.'
+            ];
+        }
+        
         require_once __DIR__ . '/../views/evaluaciones/ver.php';
     }
 
@@ -748,5 +850,158 @@ class EvaluacionController
 
         header('Location: index.php?controller=Evaluacion&action=listado');
         exit;
+    }
+
+    public function crearCompleta()
+    {
+        // Verificar sesión (evaluadores y administradores pueden crear evaluaciones)
+        if (!isset($_SESSION['usuario_id']) || !in_array($_SESSION['rol'], ['evaluador', 'administrador'])) {
+            header('Location: index.php?controller=Dashboard&action=index');
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->procesarEvaluacionCompleta();
+            return;
+        }
+
+        // Cargar datos necesarios para el formulario
+        require_once __DIR__ . '/../models/Atleta.php';
+        require_once __DIR__ . '/../models/Lugar.php';
+        require_once __DIR__ . '/../models/Discapacidad.php';
+        require_once __DIR__ . '/../models/Test.php';
+
+        // Obtener datos para los formularios
+        $atletas = Atleta::todos();
+        $lugares = Lugar::todos();
+        $discapacidades = Discapacidad::todos();
+        
+        // Obtener tests organizados por categoría (reutilizar lógica existente)
+        $tests_db = Test::todos();
+        $iconos_tests = [
+            'Talla' => 'ruler-vertical',
+            'Peso' => 'weight',
+            'Envergadura' => 'arrows-alt-h',
+            'Salto Vertical' => 'arrow-up',
+            'Salto Horizontal' => 'arrows-alt-h',
+            'Fuerza de Prensa' => 'hand-rock',
+            'Flexibilidad' => 'expand-arrows-alt',
+            'Sit and Reach' => 'hand-paper',
+            'Velocidad' => 'bolt',
+            'Resistencia' => 'heartbeat',
+            'Cooper' => 'running',
+            'Navette' => 'exchange-alt'
+        ];
+
+        $tests = [
+            'antropometría' => [],
+            'fuerza' => [],
+            'resistencia' => [],
+            'flexibilidad' => [],
+            'velocidad' => []
+        ];
+        
+        foreach ($tests_db as $test) {
+            $icono = $iconos_tests[$test['nombre_test']] ?? 'clipboard-check';
+            
+            $test_data = [
+                'id' => $test['id'],
+                'nombre' => $test['nombre_test'],
+                'descripcion' => $test['descripcion'],
+                'unidad_medida' => $test['unidad_medida'] ?? 'unidad',
+                'icono' => $icono
+            ];
+            
+            // Categorizar tests
+            $nombre_lower = strtolower($test['nombre_test']);
+            if (strpos($nombre_lower, 'talla') !== false || strpos($nombre_lower, 'envergadura') !== false || strpos($nombre_lower, 'peso') !== false) {
+                $tests['antropometría'][] = $test_data;
+            } elseif (strpos($nombre_lower, 'fuerza') !== false || strpos($nombre_lower, 'salto') !== false || strpos($nombre_lower, 'prensa') !== false) {
+                $tests['fuerza'][] = $test_data;
+            } elseif (strpos($nombre_lower, 'resistencia') !== false || strpos($nombre_lower, 'cooper') !== false || strpos($nombre_lower, 'navette') !== false) {
+                $tests['resistencia'][] = $test_data;
+            } elseif (strpos($nombre_lower, 'flexibilidad') !== false || strpos($nombre_lower, 'sit and reach') !== false) {
+                $tests['flexibilidad'][] = $test_data;
+            } elseif (strpos($nombre_lower, 'velocidad') !== false || strpos($nombre_lower, 'reacción') !== false) {
+                $tests['velocidad'][] = $test_data;
+            } else {
+                $tests['fuerza'][] = $test_data;
+            }
+        }
+
+        require_once __DIR__ . '/../views/evaluaciones/crear_completa.php';
+    }
+
+    private function procesarEvaluacionCompleta()
+    {
+        try {
+            global $pdo;
+            $pdo->beginTransaction();
+
+            // Determinar si es atleta nuevo o existente
+            $atleta_id = null;
+            if (isset($_POST['atleta_existente']) && !empty($_POST['atleta_existente'])) {
+                // Usar atleta existente
+                $atleta_id = $_POST['atleta_existente'];
+            } else {
+                // Crear nuevo atleta
+                require_once __DIR__ . '/../models/Atleta.php';
+                $evaluador_id = $_SESSION['evaluador_id'] ?? $_SESSION['usuario_id'];
+                
+                $datosAtleta = [
+                    'nombre' => $_POST['nombre_atleta'],
+                    'apellido' => $_POST['apellido_atleta'],
+                    'dni' => $_POST['dni_atleta'],
+                    'edad' => $_POST['edad_atleta'],
+                    'sexo' => $_POST['sexo_atleta'],
+                    'altura' => $_POST['altura_atleta'] ?? null,
+                    'peso' => $_POST['peso_atleta'] ?? null,
+                    'nacionalidad' => $_POST['nacionalidad_atleta'] ?? null,
+                    'lugar_id' => $_POST['lugar_id'] ?? null,
+                    'discapacidad_id' => $_POST['discapacidad_id'] ?? null,
+                    'lateralidad_visual' => $_POST['lateralidad_visual'] ?? null,
+                    'lateralidad_podal' => $_POST['lateralidad_podal'] ?? null
+                ];
+
+                $atleta_id = Atleta::crear($evaluador_id, $datosAtleta);
+                if (!$atleta_id) {
+                    throw new Exception('Error al crear el atleta');
+                }
+            }
+
+            // Crear la evaluación
+            require_once __DIR__ . '/../models/Evaluacion.php';
+            $datosEvaluacion = [
+                'atleta_id' => $atleta_id,
+                'evaluador_id' => $_SESSION['evaluador_id'] ?? $_SESSION['usuario_id'],
+                'fecha_evaluacion' => $_POST['fecha_evaluacion'],
+                'hora_inicio' => $_POST['hora_inicio'] ?? date('H:i:s'),
+                'clima' => $_POST['clima'] ?? null,
+                'temperatura_ambiente' => $_POST['temperatura_ambiente'] ?? null,
+                'observaciones' => $_POST['observaciones_generales'] ?? null,
+                'estado' => 'en_progreso'
+            ];
+
+            $evaluacion_id = Evaluacion::crear($datosEvaluacion);
+            if (!$evaluacion_id) {
+                throw new Exception('Error al crear la evaluación');
+            }
+
+            $pdo->commit();
+
+            // Redirigir a la página de evaluación con tests
+            header('Location: index.php?controller=Evaluacion&action=nueva&atleta_id=' . $atleta_id . '&evaluacion_id=' . $evaluacion_id . '&success=evaluacion_creada');
+            exit;
+
+        } catch (Exception $e) {
+            $pdo->rollback();
+            error_log("Error al crear evaluación completa: " . $e->getMessage());
+            
+            $_SESSION['mensaje'] = 'Error al crear la evaluación: ' . $e->getMessage();
+            $_SESSION['tipo_mensaje'] = 'danger';
+            
+            header('Location: index.php?controller=Evaluacion&action=crearCompleta');
+            exit;
+        }
     }
 } 

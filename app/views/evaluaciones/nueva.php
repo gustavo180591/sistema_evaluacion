@@ -40,6 +40,19 @@
                 </div>
             <?php endif; ?>
 
+            <?php if (isset($_GET['success']) && $_GET['success'] === 'evaluacion_creada'): ?>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-rocket text-success me-2 fs-4"></i>
+                        <div>
+                            <strong>¡Evaluación creada exitosamente!</strong>
+                            <br><small>Ahora puedes comenzar a realizar los tests disponibles.</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <?php endif; ?>
+
             <!-- Formulario Principal -->
             <div class="card shadow border-0">
                 <div class="card-header bg-success text-white py-4">
