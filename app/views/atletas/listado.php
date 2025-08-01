@@ -149,7 +149,15 @@
                   <td>
                     <span class="badge badge-info"><?php echo $edad; ?> años</span>
                     <br>
-                    <small class="text-muted"><?php echo date('d/m/Y', strtotime($a['fecha_nacimiento'])); ?></small>
+                    <small class="text-muted">
+                        <?php 
+                        if (!empty($a['fecha_nacimiento'])) {
+                            echo date('d/m/Y', strtotime($a['fecha_nacimiento']));
+                        } else {
+                            echo 'N/A';
+                        }
+                        ?>
+                    </small>
                   </td>
                   <td>
                     <?php 

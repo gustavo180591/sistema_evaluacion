@@ -391,6 +391,15 @@
                                 </a>
                             </div>
                         </div>
+<?php if ($_SESSION['rol'] === 'administrador'): ?>
+                        <div class="col-md-4">
+                            <div class="d-grid">
+                                <a href="index.php?controller=Admin&action=gestionarLugares" class="btn btn-outline-warning">
+                                    <i class="fas fa-map-marker-alt me-2"></i> Gestionar Lugares
+                                </a>
+                            </div>
+                        </div>
+                        <?php endif; ?>
                         <div class="col-md-4">
                             <div class="d-grid">
                                 <a href="index.php?controller=Admin&action=estadisticas" class="btn btn-outline-info">

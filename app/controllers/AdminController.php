@@ -17,7 +17,32 @@ class AdminController
         }
 
         require_once __DIR__ . '/../models/Usuario.php';
-        $usuarios = Usuario::todos();
+        
+        // Parámetros de búsqueda y filtrado
+        $busqueda = $_GET['buscar'] ?? '';
+        $rol = $_GET['rol'] ?? '';
+        $estado = $_GET['estado'] ?? '';
+        $pagina = max(1, intval($_GET['pagina'] ?? 1));
+        $porPagina = 10;
+        
+        // Obtener usuarios con filtros
+        $usuarios = Usuario::filtrar([
+            'buscar' => $busqueda,
+            'rol' => $rol,
+            'estado' => $estado,
+            'pagina' => $pagina,
+            'por_pagina' => $porPagina
+        ]);
+        
+        // Obtener total de usuarios para paginación
+        $totalUsuarios = Usuario::contarFiltrados([
+            'buscar' => $busqueda,
+            'rol' => $rol,
+            'estado' => $estado
+        ]);
+        
+        $totalPaginas = ceil($totalUsuarios / $porPagina);
+        $roles = ['administrador' => 'Administrador', 'evaluador' => 'Evaluador', 'usuario' => 'Usuario'];
 
         require_once __DIR__ . '/../views/admin/usuarios.php';
     }
@@ -396,32 +421,23 @@ class AdminController
 
     public function configuracion()
     {
-        // Verificar que el usuario esté autenticado
-        if (!isset($_SESSION['usuario_id'])) {
+        // Verificar permisos
+        if (!isset($_SESSION['rol'])) {
             header('Location: index.php?controller=Auth&action=login');
             exit;
         }
 
-        // Tanto administradores como evaluadores pueden ver la configuración
-        if (!isset($_SESSION['rol']) || !in_array($_SESSION['rol'], ['administrador', 'evaluador'])) {
-            header('Location: index.php?controller=Dashboard&action=index');
+        if ($_SESSION['rol'] !== 'administrador' && $_SESSION['rol'] !== 'evaluador') {
+            header('Location: index.php?controller=Dashboard');
             exit;
         }
 
-        // Si es POST, procesar la configuración
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->guardarConfiguracion();
-            return;
-        }
-
-        // Obtener configuraciones actuales
-        $configuraciones = $this->obtenerConfiguraciones();
-        
-        // Obtener estadísticas del sistema
         require_once __DIR__ . '/../models/Atleta.php';
         require_once __DIR__ . '/../models/Test.php';
         require_once __DIR__ . '/../models/Evaluacion.php';
         require_once __DIR__ . '/../models/Usuario.php';
+
+        $configuraciones = $this->obtenerConfiguraciones();
         
         $estadisticas = [
             'total_atletas' => Atleta::contar(),
@@ -431,6 +447,138 @@ class AdminController
         ];
 
         require_once __DIR__ . '/../views/admin/configuracion.php';
+    }
+
+    public function gestionarLugares()
+    {
+        // Verificar permisos (solo administradores pueden gestionar lugares)
+        if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'administrador') {
+            header('Location: index.php?controller=Dashboard');
+            exit;
+        }
+
+        require_once __DIR__ . '/../models/Lugar.php';
+        
+        $lugares = Lugar::todos();
+        $totalLugares = Lugar::contar();
+
+        require_once __DIR__ . '/../views/admin/lugares.php';
+    }
+
+    public function crearLugar()
+    {
+        if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'administrador') {
+            header('Location: index.php?controller=Dashboard');
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            require_once __DIR__ . '/../models/Lugar.php';
+
+            $nombre = trim($_POST['nombre'] ?? '');
+            $zona = trim($_POST['zona'] ?? '');
+            $direccion = trim($_POST['direccion'] ?? '');
+
+            if (empty($nombre)) {
+                $_SESSION['mensaje'] = 'El nombre del lugar es obligatorio';
+                $_SESSION['tipo_mensaje'] = 'danger';
+                header('Location: index.php?controller=Admin&action=gestionarLugares');
+                exit;
+            }
+
+            if (Lugar::crear($nombre, $zona, $direccion)) {
+                $_SESSION['mensaje'] = 'Lugar creado exitosamente';
+                $_SESSION['tipo_mensaje'] = 'success';
+            } else {
+                $_SESSION['mensaje'] = 'Error al crear el lugar';
+                $_SESSION['tipo_mensaje'] = 'danger';
+            }
+        }
+
+        header('Location: index.php?controller=Admin&action=gestionarLugares');
+        exit;
+    }
+
+    public function editarLugar()
+    {
+        if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'administrador') {
+            header('Location: index.php?controller=Dashboard');
+            exit;
+        }
+
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            header('Location: index.php?controller=Admin&action=gestionarLugares');
+            exit;
+        }
+
+        require_once __DIR__ . '/../models/Lugar.php';
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $nombre = trim($_POST['nombre'] ?? '');
+            $zona = trim($_POST['zona'] ?? '');
+            $direccion = trim($_POST['direccion'] ?? '');
+
+            if (empty($nombre)) {
+                $_SESSION['mensaje'] = 'El nombre del lugar es obligatorio';
+                $_SESSION['tipo_mensaje'] = 'danger';
+                header('Location: index.php?controller=Admin&action=gestionarLugares');
+                exit;
+            }
+
+            if (Lugar::actualizar($id, $nombre, $zona, $direccion)) {
+                $_SESSION['mensaje'] = 'Lugar actualizado exitosamente';
+                $_SESSION['tipo_mensaje'] = 'success';
+            } else {
+                $_SESSION['mensaje'] = 'Error al actualizar el lugar';
+                $_SESSION['tipo_mensaje'] = 'danger';
+            }
+
+            header('Location: index.php?controller=Admin&action=gestionarLugares');
+            exit;
+        }
+
+        $lugar = Lugar::buscarPorId($id);
+        if (!$lugar) {
+            $_SESSION['mensaje'] = 'Lugar no encontrado';
+            $_SESSION['tipo_mensaje'] = 'danger';
+            header('Location: index.php?controller=Admin&action=gestionarLugares');
+            exit;
+        }
+
+        require_once __DIR__ . '/../views/admin/editar_lugar.php';
+    }
+
+    public function eliminarLugar()
+    {
+        if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'administrador') {
+            header('Location: index.php?controller=Dashboard');
+            exit;
+        }
+
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            header('Location: index.php?controller=Admin&action=gestionarLugares');
+            exit;
+        }
+
+        require_once __DIR__ . '/../models/Lugar.php';
+
+        if (Lugar::verificarEnUso($id)) {
+            $_SESSION['mensaje'] = 'No se puede eliminar el lugar porque está siendo usado por atletas';
+            $_SESSION['tipo_mensaje'] = 'warning';
+        } else {
+            if (Lugar::eliminar($id)) {
+                $_SESSION['mensaje'] = 'Lugar eliminado exitosamente';
+                $_SESSION['tipo_mensaje'] = 'success';
+            } else {
+                $_SESSION['mensaje'] = 'Error al eliminar el lugar';
+                $_SESSION['tipo_mensaje'] = 'danger';
+            }
+        }
+
+        header('Location: index.php?controller=Admin&action=gestionarLugares');
+        exit;
     }
 
     private function obtenerConfiguraciones()
